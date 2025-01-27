@@ -1,13 +1,12 @@
 import streamlit as st
 from datetime import datetime, date
 from babel.dates import format_date
-from collections import Counter
 import os
 
 # Dados fornecidos
 dados = {
     'Nome': 'João Victor Assaoka Ribeiro',
-    'Status': 'Ativo',
+    'Status': True,
     'Data de Nascimento': datetime(2005, 5, 4),
     'RG': '98680418X',
     'CPF': 31997000405,
@@ -45,10 +44,6 @@ def formatar_telefone(telefone):
     telefone = f"{telefone:011d}"
     return f"({telefone[:2]}) {telefone[2:7]}-{telefone[7:]}"
 
-def calcular_presencas_por_mes(presencas):
-    contagem = Counter(presenca.strftime('%m/%Y') for presenca in presencas)
-    return sorted(contagem.items(), key=lambda x: datetime.strptime(x[0], '%m/%Y'))
-
 def endereco_por_cep(cep, dados):
     import requests
     url = f"https://viacep.com.br/ws/{cep}/json/"
@@ -60,43 +55,89 @@ def endereco_por_cep(cep, dados):
         dados['Bairro'] = endereco['bairro']
         dados['Cidade'] = endereco['localidade']
         dados['Estado'] = endereco['uf']
+    else:
+        dados['Logradouro'] = 'Não encontrado'
+        dados['Bairro'] = 'Não encontrado'
+        dados['Cidade'] = 'Não encontrado'
+        dados['Estado'] = 'Não encontrado'
+
+if st.session_state.get('Editando') is None:
+    st.session_state['Editando'] = False
 
 # Início da interface com Streamlit
-st.set_page_config(page_title="Detalhes do Usuário", layout="wide")
-st.title("Perfil do Usuário")
+st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
+st.title("Perfil do Atendido")
 
 # Header com nome e status
 col1, col2 = st.columns([3, 1])
 col1.header(dados['Nome'])
-status_emoji = "✅" if dados['Status'] == "Ativo" else "❌"
-col2.markdown(f"### Status: {status_emoji}")
+if st.session_state['Editando'] == False:
+    status_emoji = "✅" if dados['Status'] else "❌"
+    col2.markdown(f"### Status: {status_emoji}")
+else:
+    novos_dados = dados.copy()
+    novos_dados['Status'] = col2.checkbox("**Status**",  value=novos_dados['Status'])
+
 
 # Dados pessoais
 st.subheader("Dados Pessoais")
-col1, col2, col3, col4 = st.columns([3, 2, 2, 2])
-col1.write(f"**Data de Nascimento:** {format_date(dados['Data de Nascimento'], 'dd/MM/yyyy', locale='pt_BR')} ({calcular_idade(dados['Data de Nascimento'])} anos)")
-col2.write(f"**RG:** {dados['RG']}")
-col3.write(f"**CPF:** {formatar_cpf(dados['CPF'])}")
-col4.write(f"**Convênio:** {dados['Convênio']}")
-
-col1, col2, col3 = st.columns(3)
-endereco_por_cep(dados['CEP'], dados)
-col1.write(f"**Logradouro:** {dados['Logradouro']}")
-col2.write(f"**Número:** {dados['Número']}")
-col3.write(f"**CEP:** {formatar_cep(dados['CEP'])}")
-col1.write(f"**Bairro:** {dados['Bairro']}")
-col2.write(f"**Cidade:** {dados['Cidade']}")
-col3.write(f"**Estado:** {dados['Estado']}")
-
-col1, col2, col3 = st.columns(3)
-col1.write(f"**Pai:** {dados['Pai']}")
-col2.write(f"**Mãe:** {dados['Mãe']}")
-if dados['Responsável']: col3.write(f"**Responsável:** {dados['Responsável']}")
-
-# Responsáveis
+col1, col2, col3, col4 = st.columns(4)
+if st.session_state['Editando'] == False:
+    col1.write(f"**Data de Nascimento:** {format_date(dados['Data de Nascimento'], 'dd/MM/yyyy', locale='pt_BR')} ({calcular_idade(dados['Data de Nascimento'])} anos)")
+    col2.write(f"**RG:** {dados['RG']}")
+    col3.write(f"**CPF:** {formatar_cpf(dados['CPF'])}")
+    col4.write(f"**Convênio:** {dados['Convênio']}")
+else:
+    novos_dados['Data de Nascimento'] = col1.date_input("Data de Nascimento", value=dados['Data de Nascimento'], format="DD/MM/YYYY")
+    novos_dados['RG'] = col2.text_input("RG", value=dados['RG'])
+    novos_dados['CPF'] = int(col3.text_input("CPF", value=dados['CPF']))
+    novos_dados['Convênio'] = col4.text_input("Convênio", value=dados['Convênio'])
 
 # Endereço
-# Vamos pegar o cep pra pegar endereço, bairro, cidade e estado
+endereco_por_cep(dados['CEP'], dados)
+if st.session_state['Editando'] == False:
+    col1, col2, col3 = st.columns(3)
+    col1.write(f"**Logradouro:** {dados['Logradouro']}")
+    col2.write(f"**CEP:** {formatar_cep(dados['CEP'])}")
+    col3.write(f"**Número:** {dados['Número']}")
+    col1.write(f"**Bairro:** {dados['Bairro']}")
+    col2.write(f"**Cidade:** {dados['Cidade']}")
+    col3.write(f"**Estado:** {dados['Estado']}")
+else:
+    col1, col2 = st.columns(2)
+    novos_dados['CEP'] = int(col1.text_input("CEP", value=novos_dados['CEP']))
+    novos_dados['Número'] = int(col2.text_input("Número", value=novos_dados['Número']))
+    with st.expander("Endereço (Antigo / Novo)", expanded=False):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"**Logradouro:** {dados['Logradouro']}")
+            st.write(f"**Bairro:** {dados['Bairro']}")
+            st.write(f"**Cidade:** {dados['Cidade']}")
+            st.write(f"**Estado:** {dados['Estado']}")
+        with col2:
+            endereco_por_cep(novos_dados['CEP'], novos_dados)
+            st.write(f"**Logradouro:** {novos_dados['Logradouro']}")
+            st.write(f"**Bairro:** {novos_dados['Bairro']}")
+            st.write(f"**Cidade:** {novos_dados['Cidade']}")
+            st.write(f"**Estado:** {novos_dados['Estado']}")
+ 
+col1, col2, col3 = st.columns(3)
+if st.session_state['Editando'] == False:
+    col1.write(f"**Pai:** {dados['Pai']}")
+    col2.write(f"**Mãe:** {dados['Mãe']}")
+    if dados['Responsável']: col3.write(f"**Responsável:** {dados['Responsável']}")
+else:
+    novos_dados['Pai'] = col1.text_input("Pai", value=dados['Pai'])
+    novos_dados['Mãe'] = col2.text_input("Mãe", value=dados['Mãe'])
+    novos_dados['Responsável'] = col3.text_input("Responsável", value=dados['Responsável'])
+
+if st.session_state['Editando'] == False:
+    if st.button("Editar Dados Pessoais"):
+        st.session_state['Editando'] = True
+        st.rerun()
+elif st.button("Salvar Dados Pessoais"):
+    st.session_state['Editando'] = False
+    st.rerun()
 
 # Contatos
 st.subheader("Contatos")
@@ -154,16 +195,3 @@ for idx, foto in enumerate(dados['Fotos']):
             col3.image(foto, use_column_width=True)
     else:
         st.error(f"Imagem não encontrada: {foto}")
-
-# Botão para modo de edição
-if st.button("Entrar no modo de edição"):
-    with st.form("edit_form"):
-        novo_nome = st.text_input("Nome", value=dados['Nome'])
-        novo_status = st.selectbox("Status", ["Ativo", "Inativo"], index=0 if dados['Status'] == "Ativo" else 1)
-        nova_data_nascimento = st.date_input("Data de Nascimento", value=dados['Data de Nascimento'].date())
-        novo_rg = st.text_input("RG", value=str(dados['RG']))
-        novo_cpf = st.text_input("CPF", value=formatar_cpf(dados['CPF']))
-        novo_endereco = st.text_input("Endereço", value=dados['Endereço'])
-        novo_cep = st.text_input("CEP", value=formatar_cep(dados['CEP']))
-
-        st.form_submit_button("Salvar alterações")
