@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime, date
+from datetime import datetime, date, time
 from babel.dates import format_date
 import os
 
@@ -17,15 +17,15 @@ dados = {
     'CEP': 12221580,
     'Número': 123,
     'Observações': None,
-    'Presenças': [datetime(2021, 5, 4), datetime(2021, 5, 11), datetime(2021, 5, 18), datetime(2021, 5, 25)],
+    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
     'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
     'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
                  'QUA - 09:00 ÁS 10:00': 'Música'},
     'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
               'Imagens/Outras/roxo.jpg', 
               'Imagens/Outras/Sem título.jpg'],
-    'Eventos': [('Feira de Ciências', datetime(2021, 5, 4), 'Descrição da Feira de Ciências'),
-                ('Festa Junina', datetime(2021, 6, 4), 'Descrição da Festa Junina')]
+    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
+                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
 }
 
 # Função para calcular idade
@@ -156,12 +156,11 @@ for horario, oficina in dados['Oficinas'].items():
 
 # Presenças
 st.subheader("Presenças")
-# Cria um intervalo de data entre o maximo e minimo
-min_date = min(dados['Presenças'])
-max_date = max(dados['Presenças'])
-# Cria um intervalo de datas com slider
-intervalo_datas = st.slider("Selecione o intervalo de datas", min_date, max_date, (min_date, max_date), format="DD/MM/YYYY")
-# Imprime ordenado as datas que ele foi
+min_date, max_date = min(dados['Presenças']), max(dados['Presenças'])
+
+cols = st.columns(2)
+intervalo_datas = [cols[0].date_input("Data Inicial", min_date, min_value=min_date, max_value=max_date, format="DD/MM/YYYY")]
+intervalo_datas.append(cols[1].date_input("Data Final", max_date, min_value=intervalo_datas[0], max_value=max_date, format="DD/MM/YYYY"))
 
 st.write(f"Presenças no intervalo selecionado: {len([i for i in dados['Presenças'] if intervalo_datas[0] <= i <= intervalo_datas[1]])}")
 

@@ -3,7 +3,6 @@ base="light"
 primaryColor="#00aeef"
 secondaryBackgroundColor="#00aeef"
 textColor="#000000"
-font="monospace"
 
 [server]
 runOnSave = true
