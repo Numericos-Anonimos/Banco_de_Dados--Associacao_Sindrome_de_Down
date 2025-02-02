@@ -69,11 +69,11 @@ st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
 st.title("Perfil do Atendido")
 
 # Header com nome e status
-col1, col2 = st.columns([3, 1])
+col1, col2 = st.columns([2.5, 1])
 col1.header(dados['Nome'])
 if st.session_state['Editando'] == False:
     status_emoji = "✅" if dados['Status'] else "❌"
-    col2.markdown(f"### Status: {status_emoji}")
+    col2.header(f"Status: {status_emoji}")
 else:
     novos_dados = dados.copy()
     novos_dados['Status'] = col2.checkbox("**Status**",  value=novos_dados['Status'])
@@ -182,16 +182,11 @@ for idx, (nome, data, descricao) in enumerate(dados['Eventos']):
         with col2.expander(label):
             st.write(descricao)
 
-# Fotos
 st.subheader("Fotos")
-col1, col2, col3 = st.columns(3)
-for idx, foto in enumerate(dados['Fotos']):
-    if os.path.exists(foto):
-        if idx % 3 == 0:
-            col1.image(foto, use_column_width=True)
-        elif idx % 3 == 1:
-            col2.image(foto, use_column_width=True)
+if st.checkbox("Mostrar Fotos"):
+    cols = st.columns(3)
+    for idx, foto in enumerate(dados['Fotos']):
+        if os.path.exists(foto):
+            cols[idx % 3].image(foto, use_column_width=True)
         else:
-            col3.image(foto, use_column_width=True)
-    else:
-        st.error(f"Imagem não encontrada: {foto}")
+            st.error(f"Imagem não encontrada: {foto}")
