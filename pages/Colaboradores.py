@@ -2,6 +2,8 @@ import streamlit as st
 from datetime import date
 from time import sleep
 
+st.session_state['current_page'] = "Home"
+
 dados_funcionarios = [
     {
         "Cod": 1,
@@ -254,3 +256,9 @@ if "alterar_funcionario" not in st.session_state:
 
 # Iniciar a execução da função Listar
 Listar(dados_funcionarios)
+
+
+
+with st.sidebar:
+    #st.logo("Imagens/BannerASIN.png", icon_image="Imagens/LogoASIN.png")
+    st.image("Imagens/BannerASIN.png", use_container_width=True)

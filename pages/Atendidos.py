@@ -273,5 +273,16 @@ def Atendidos():
                 if on_click_alterar:
                     st.session_state["alterar_atendido"] = item["Cod"]
                     st.rerun()  # Reinicia a página para exibir o formulário de alteração
+
+
+
+
+
+
+
 # Chama a função principal
 Atendidos()
+
+with st.sidebar:
+    #st.logo("Imagens/BannerASIN.png", icon_image="Imagens/LogoASIN.png")
+    st.image("Imagens/BannerASIN.png", use_container_width=True)

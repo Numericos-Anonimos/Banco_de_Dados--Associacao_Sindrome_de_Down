@@ -1,9 +1,10 @@
 [theme]
-base="light"
-primaryColor="#00aeef"
-secondaryBackgroundColor="#00aeef"
-textColor="#000000"
+base = "dark"
+primaryColor = "#00aeef"  # Azul claro para destaques
+secondaryBackgroundColor = "#005f88"  # Azul escuro para o fundo secundário
+backgroundColor = "#002b3d"  # Azul bem escuro para o fundo principal
+textColor = "#ffffff"  # Texto em branco para contrastar com o fundo escuro
+secondaryTextColor = "#c1c1c1"  # Texto secundário em cinza claro
 
 [server]
 runOnSave = true
-
