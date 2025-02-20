@@ -65,7 +65,7 @@ oficinas = [{
     },
     {
     'Cod_Oficina': 2,
-    'Nome': "Teste",
+    'Nome': "Clinica",
     'Categoria': "Esporte",
     'Projeto': "Projeto 1",
     'Data_Cadastro': date(2005, 5, 4),
@@ -134,8 +134,9 @@ def apresentar_oficinas1(oficinas):
         
         if not st.session_state.edit_mode:
             cols = st.columns([2.5, 1])
-            cols[0].header(f'{dados["Nome"]}')
+            cols[0].title(f'{dados["Nome"]}')
             cols[1].header(f'Status: {"✅" if dados["Data_Fim"] is None else "❌"}')
+            st.markdown("<br>",unsafe_allow_html=True)
 
             cols = st.columns(3)
             cols[0].write(f'**Categoria**: {dados["Categoria"]}')
@@ -158,6 +159,7 @@ def apresentar_oficinas1(oficinas):
                 st.session_state.edit_mode = True
                 st.rerun()
 
+            st.markdown("---")
             st.header("Presenças")
             min_date, max_date = min(dados['Houve_Oficina']), max(dados['Houve_Oficina'])
             cols = st.columns(2)
@@ -183,6 +185,7 @@ def apresentar_oficinas1(oficinas):
 
             st.dataframe(df, use_container_width=True)
 
+            st.markdown("---")
             st.subheader("Fotos")
             if st.checkbox("Mostrar Fotos"):
                 cols = st.columns(3)
@@ -216,6 +219,7 @@ def apresentar_oficinas1(oficinas):
         st.title("Nossas Oficinas")
         oficinas_unicas = {oficina['Nome']: oficina for oficina in oficinas}.values()
         num_oficinas = len(oficinas_unicas)
+        st.markdown("<br>",unsafe_allow_html=True)
         
         for i in range(0, num_oficinas, 3):
             cols = st.columns(3)

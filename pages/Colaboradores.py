@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import date
 from time import sleep
+import textwrap
 
 st.session_state['current_page'] = "Home"
 
@@ -49,7 +50,7 @@ dados_funcionarios = [
     },
     {
         "Cod": 4,
-        "Nome": "Marcelo Gustavo Felipe Campos",
+        "Nome": "Marcelo Gustavo Felipe Campos Silva Ferreira",
         "CPF": "333.444.555-66",
         "Endereço": "Rua 4, 101",
         "Observações": "Nenhuma",
@@ -132,7 +133,10 @@ def Listar(dados_funcionarios):
         # Limpar a tela e exibir detalhes do funcionário
         st.empty()
         funcionario_selecionado = next(item for item in dados_funcionarios if item["Cod"] == on_click_ver)
-        st.markdown(f"<h1 style='font-size: 40px;'>{funcionario_selecionado['Nome']}</h1>", unsafe_allow_html=True)
+        nome_completo = funcionario_selecionado['Nome']
+        primeiros_nomes = " ".join(nome_completo.split()[:2])  # Pega os dois primeiros nomes
+
+        st.markdown(f"<h1 style='font-size: 60px;'>Perfil:  {primeiros_nomes}</h1>", unsafe_allow_html=True)
 
     
         # Exibindo os detalhes do funcionário
@@ -144,6 +148,7 @@ def Listar(dados_funcionarios):
         st.write(f"Salário: {funcionario_selecionado['Salário']}")
         st.write(f"Observações: {funcionario_selecionado['Observações']}")
 
+        st.markdown("---")
         # Contatos
         st.subheader("**Contatos**")
         cols = st.columns(3)
@@ -152,12 +157,12 @@ def Listar(dados_funcionarios):
             with cols[idx % 3].container(border=True):
                 st.markdown(f"**{descricao}:**")
                 st.write(formatted_telefone)
-
+        st.markdown("---")
         # Oficinas
         st.subheader("**Oficinas**")
         for horario, oficina in funcionario_selecionado['Oficinas'].items():
             st.write(f"- **{horario}**: {oficina}")
-        
+        st.markdown("---")
         # Presenças
         st.subheader("**Pontos**")
         min_date, max_date = min(funcionario_selecionado['Ponto']), max(funcionario_selecionado['Ponto'])
@@ -227,8 +232,12 @@ def Listar(dados_funcionarios):
             col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
             quantidade_oficinas = len(item["Oficinas"])
 
+
+            shortened_name = textwrap.shorten(item["Nome"], width=30, placeholder="...")
+
+            
             col1.write(item["Cod"])
-            col2.write(item["Nome"])
+            col2.write(shortened_name)
             col3.write(item["CPF"])
             col4.write(item["Salário"])
             col5.write(quantidade_oficinas)
