@@ -4,7 +4,6 @@ from datetime import datetime, date
 # Configuração da página
 st.set_page_config(page_title="Projetos", layout="wide")
 
-
 # Dados simulados da tabela Projetos
 dados_projetos = [
     {
