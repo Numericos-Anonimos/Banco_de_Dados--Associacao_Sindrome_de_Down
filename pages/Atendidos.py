@@ -5,9 +5,54 @@ import pandas as pd
 import os
 import requests
 from st_aggrid import AgGrid, GridOptionsBuilder
+from timetable_canvas import timetable_canvas_generator
 
 # Configuração da página deve ser a primeira linha no script
 st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
+
+
+def convert_to_timetable(dados, nome_pessoa):
+    day_map = {
+        "SEG": "Segunda",
+        "TER": "Terça",
+        "QUA": "Quarta",
+        "QUI": "Quinta",
+        "SEX": "Sexta"
+    }
+    
+    time_slots = [
+        '08:00', '09:00', '10:00', '11:00', '12:00',
+        '13:00', '14:00', '15:00', '16:00', '17:00'
+    ]
+    
+    timetable = [['' for _ in time_slots] for _ in day_map.values()]
+    
+    for pessoa in dados:
+        if pessoa['Nome'] == nome_pessoa:
+            oficinas = pessoa.get('Oficinas', {})
+            
+            for horario_key, nome_oficina in oficinas.items():
+                try:
+                    # Extrair dia e horários da chave
+                    dia_part, tempo_part = horario_key.split(' - ')
+                    inicio_str, fim_str = tempo_part.split(' ÁS ')
+                    
+                    # Converter para formatos padrão
+                    dia = day_map[dia_part.strip().upper()]
+                    idx_dia = list(day_map.values()).index(dia)
+                    
+                    # Encontrar índices dos horários
+                    idx_inicio = time_slots.index(inicio_str.strip())
+                    idx_fim = time_slots.index(fim_str.strip())
+                    
+                    # Preencher a grade
+                    for slot in range(idx_inicio, idx_fim):
+                        timetable[idx_dia][slot] = f"{nome_oficina} ({time_slots[slot]})"
+                        
+                except (KeyError, ValueError, AttributeError):
+                    continue
+                    
+    return timetable
 
 # Dados de exemplo
 dados = [{
@@ -272,6 +317,19 @@ def imprime_colaborador(atendido_info):
                     cols[idx % 3].image(foto, use_column_width=True)
                 else:
                     st.error(f"Imagem não encontrada: {foto}")
+        
+        # Converter para grade
+        timetable = convert_to_timetable(dados, atendido_info['Nome'])
+
+        # Gerar componente visual
+        updated_timetable = timetable_canvas_generator(
+            timetable,
+            timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
+                        '13:00', '14:00', '15:00', '16:00', '17:00'],
+            Gheight=100
+        )
+
+        st.write(updated_timetable)
 
 
 
