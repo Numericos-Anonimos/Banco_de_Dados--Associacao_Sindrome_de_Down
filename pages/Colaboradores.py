@@ -218,7 +218,10 @@ def Listar(dados_funcionarios):
 
     else:
         st.title("Gestão de Funcionários")
-        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown('<br>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size:12px; margin-bottom: -5px;">Tabelas dos funcionários da ASIN:</p>', unsafe_allow_html=True)
+        st.markdown('<hr style="margin-top: 0;">', unsafe_allow_html=True)
+
         # Mostrar os dados de cada funcionário
         columns = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
         campos = ["Nº", "Nome", "CPF", "Salário", "Oficinas", "Ver", "Alterar"]
