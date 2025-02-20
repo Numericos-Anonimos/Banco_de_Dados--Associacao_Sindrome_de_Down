@@ -313,23 +313,32 @@ def imprime_colaborador(atendido_info):
         if st.checkbox("Mostrar Fotos"):
             cols = st.columns(3)
             for idx, foto in enumerate(atendido_info['Fotos']):
-                if os.path.exists(foto):
-                    cols[idx % 3].image(foto, use_column_width=True)
-                else:
-                    st.error(f"Imagem não encontrada: {foto}")
-        
-        # Converter para grade
-        timetable = convert_to_timetable(dados, atendido_info['Nome'])
+                try:
+                    # Usando caminho absoluto para melhor controle
+                    caminho_imagem = os.path.abspath(os.path.join("Imagens/Outras", os.path.basename(foto)))
+                    
+                    with cols[idx % 3]:
+                        if os.path.exists(caminho_imagem):
+                            st.image(caminho_imagem, use_column_width=True)
+                        else:
+                            st.warning(f"Arquivo não encontrado: {os.path.basename(foto)}")
+                except Exception as e:
+                    st.error(f"Erro ao carregar imagem: {str(e)}")
+                    continue  # Continua para próxima imagem mesmo com erro
 
-        # Gerar componente visual
-        updated_timetable = timetable_canvas_generator(
-            timetable,
-            timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
-                        '13:00', '14:00', '15:00', '16:00', '17:00'],
-            Gheight=100
-        )
-
-        st.write(updated_timetable)
+        # Garantindo que o timetable sempre será renderizado
+        try:
+            timetable = convert_to_timetable(dados, atendido_info['Nome'])
+            updated_timetable = timetable_canvas_generator(
+                timetable,
+                timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
+                            '13:00', '14:00', '15:00', '16:00', '17:00'],
+                Gheight=100
+            )
+            st.write(updated_timetable)
+        except Exception as e:
+            st.error("Erro ao gerar a grade horária:")
+            st.exception(e)  # Mostra detalhes do erro sem quebrar o app
 
 
 
