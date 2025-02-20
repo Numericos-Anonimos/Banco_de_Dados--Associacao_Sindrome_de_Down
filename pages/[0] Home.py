@@ -4,12 +4,12 @@ import base64
 from io import BytesIO
 
 
-st.set_page_config(page_title="Sistema ASIN", page_icon="Imagens/LogoASIN.png", layout="wide")
-st.html('''<style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;} 
-        </style>''')
+#st.set_page_config(page_title="Sistema ASIN", page_icon="Imagens/LogoASIN.png", layout="wide")
+#st.html('''<style>
+#            #MainMenu {visibility: hidden;}
+#            footer {visibility: hidden;}
+#            header {visibility: hidden;} 
+#        </style>''')
 
 
 # Função para converter a imagem para base64
@@ -28,21 +28,21 @@ col1, col2 = st.columns(2, gap='small')
 
 with col1:
         with st.container(border=True):
-            st.page_link("pages/Atendidos.py", label="📋 **Atendidos**")
+            st.page_link("pages/[1] Atendidos.py", label="📋 **Atendidos**")
             st.caption("Área para a visualização dos atentidos")
         with st.container(border=True):
-            st.page_link("pages/Colaboradores.py", label="👥 **Colaboradores**")
+            st.page_link("pages/[2] Colaboradores.py", label="👥 **Colaboradores**")
             st.caption("Área para a visualização dos colaboradores")
         with st.container(border=True):
-            st.page_link("pages/Projetos.py", label="📊 **Projetos**")
+            st.page_link("pages/[5] Projetos.py", label="📊 **Projetos**")
             st.caption("Visualização das projetos realizados")
 
 with col2:
         with st.container(border=True):
-            st.page_link("pages/Oficinas.py", label="🛠️ **Oficinas**")
+            st.page_link("pages/[4] Oficinas.py", label="🛠️ **Oficinas**")
             st.caption("Visualização das Oficinas disponibilizadas")
         with st.container(border=True):
-            st.page_link("pages/Eventos.py", label="🎉 **Eventos**")
+            st.page_link("pages/[3] Eventos.py", label="🎉 **Eventos**")
             st.caption("Visualização das eventos realizados")
 
 

@@ -4,7 +4,7 @@ from datetime import datetime, time, date
 import os
 
 
-st.set_page_config(page_title="Oficinas", layout="wide")
+#st.set_page_config(page_title="Oficinas", layout="wide")
 
 
 

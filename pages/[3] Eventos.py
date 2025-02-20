@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import date
 
-st.set_page_config(page_title="Eventos", layout="wide")
+#st.set_page_config(page_title="Eventos", layout="wide")
 
 import streamlit as st
 from datetime import date
