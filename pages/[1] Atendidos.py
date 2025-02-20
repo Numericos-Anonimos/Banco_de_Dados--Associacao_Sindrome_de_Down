@@ -8,7 +8,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 from timetable_canvas import timetable_canvas_generator
 
 # Configuração da página deve ser a primeira linha no script
-st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
+#st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
 
 
 def convert_to_timetable(dados, nome_pessoa):
