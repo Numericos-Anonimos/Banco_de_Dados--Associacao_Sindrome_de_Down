@@ -92,21 +92,6 @@ dados_funcionarios = [
     },
 ]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def calcular_idade(data_nascimento):
     hoje = date.today()
     return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
@@ -123,16 +108,15 @@ def formatar_telefone(telefone):
     return f"({telefone[:2]}) {telefone[2:7]}-{telefone[7:]}"
 
 
-def Listar(dados_funcionarios):
-    
-    # Se o botão "Alterar" ou "Ver" for pressionado, limpe a página e mostre o formulário
-    on_click_alterar = st.session_state.get("alterar_funcionario", None)
-    on_click_ver = st.session_state.get("ver_funcionario", None)
 
-    if on_click_ver:
-        # Limpar a tela e exibir detalhes do funcionário
+
+import pandas as pd
+import uuid
+from st_aggrid import AgGrid, GridOptionsBuilder
+
+
+def imprimir_colaborador(funcionario_selecionado):
         st.empty()
-        funcionario_selecionado = next(item for item in dados_funcionarios if item["Cod"] == on_click_ver)
         nome_completo = funcionario_selecionado['Nome']
         primeiros_nomes = " ".join(nome_completo.split()[:2])  # Pega os dois primeiros nomes
 
@@ -182,94 +166,117 @@ def Listar(dados_funcionarios):
         submit_button = st.button("Voltar")
 
         if submit_button:
-            st.session_state["ver_funcionario"] = None  # Limpar o estado de visualização para voltar à lista
+            st.session_state.selected_user = None  # Limpar o estado de visualização para voltar à lista
             st.rerun()
 
-    elif on_click_alterar:
-        # Limpar a página (realmente limpar)
-        st.empty()
 
-        # Obter os dados do funcionário selecionado
-        funcionario_selecionado = next(item for item in dados_funcionarios if item["Cod"] == on_click_alterar)
 
-        # Exibir o formulário de alteração
-        st.header(f"Alterando dados de: {funcionario_selecionado['Nome']}")
-        
-        # Criando o formulário para alterar dados do funcionário
-        with st.form(key=f"alterar_{funcionario_selecionado['Cod']}"):
-            nome = st.text_input("Nome", value=funcionario_selecionado["Nome"])
-            cpf = st.text_input("CPF", value=funcionario_selecionado["CPF"])
-            endereco = st.text_input("Endereço", value=funcionario_selecionado["Endereço"])
-            salario = st.number_input("Salário", value=funcionario_selecionado["Salário"], step=100.0)
-            observacoes = st.text_area("Observações", value=funcionario_selecionado["Observações"])
 
-            # Informações atualizadas:
-            # nome,cpf,endereco,salario,observacoes
+def colaborador():
+    st.title("Gestão de Funcionários")
 
-            # Submissão do formulário
-            submit_button = st.form_submit_button(label="Salvar Alterações")
+    # Injetando CSS customizado para alterar a cor secundária de fundo do grid (tema Alpine)
+    st.markdown(
+        """
+        <style>
+        .ag-theme-alpine {
+            --ag-secondary-background-color: #005f88;
+        }
+        .small-button button {
+            width: 100px;  /* Tamanho menor */
+            font-size: 8px;
+            padding: 0px;
+            background-color: #ff4b4b;
+            color: white;
+            border-radius: 0px;
+            border: none;
+            cursor: pointer;
+        }
+        .small-button button:hover {
+            background-color: #ff1f1f;
+        }
+        .spaced-button {
+            margin-top: 28px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-            if submit_button:
-                # Aqui você pode salvar as alterações em uma estrutura de dados ou banco de dados
-                st.success(f"Alterações salvas para {nome}!")
-                st.session_state["alterar_funcionario"] = None  # Limpar o estado de alteração para voltar à lista
-                sleep(1)
-                st.rerun()
+    # Inicializa o estado da sessão
+    if "selected_user" not in st.session_state:
+        st.session_state.selected_user = None
+    if "nome_atendido" not in st.session_state:
+        st.session_state.nome_atendido = ""
+    if "grid_key" not in st.session_state:
+        st.session_state.grid_key = str(uuid.uuid4())
 
+    # Cria duas colunas para o campo de texto e o botão de limpar
+    col_input, col_button = st.columns([9, 1])
+    with col_input:
+        nome_atendido = st.text_input(
+            "Digite o nome do colaborador:",
+            key=f"search_input_{st.session_state.grid_key}",
+            value=st.session_state.nome_atendido
+        )
+    with col_button:
+        st.markdown('<div class="spaced-button">', unsafe_allow_html=True)
+        if st.button("Limpar", key="clear_button"):
+            st.session_state.nome_atendido = ""             # Limpa o filtro
+            st.session_state.grid_key = str(uuid.uuid4())     # Gera nova chave para reinicializar grid e input
+            st.session_state.selected_user = None             # Remove o usuário selecionado
+            st.rerun()                                        # Reexecuta o script
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Filtrando os dados conforme a pesquisa
+    if nome_atendido:
+        dados_filtrados = [item for item in dados_funcionarios if nome_atendido.lower() in item['Nome'].lower()]
     else:
-        st.title("Gestão de Funcionários")
-        st.markdown('<br>', unsafe_allow_html=True)
-        st.markdown('<p style="font-size:12px; margin-bottom: -5px;">Tabelas dos funcionários da ASIN:</p>', unsafe_allow_html=True)
-        st.markdown('<hr style="margin-top: 0;">', unsafe_allow_html=True)
+        dados_filtrados = dados_funcionarios  # Exibe todos os dados quando não há pesquisa
 
-        # Mostrar os dados de cada funcionário
-        columns = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
-        campos = ["Nº", "Nome", "CPF", "Salário", "Oficinas", "Ver", "Alterar"]
+    # Se o filtro não retornar nenhum resultado, exibe uma mensagem e encerra a função
+    if not dados_filtrados:
+        st.info("Nenhum atendido encontrado com este filtro.")
+        return
 
-        # Cabeçalho da tabela
-        for col, campo_nome in zip(columns, campos):
-            col.write(campo_nome)
+    # Criando DataFrame e filtrando apenas os atributos necessários
+    df = pd.DataFrame(dados_filtrados)
+    df = df[["Cod", "Nome", "CPF","Salário"]]
 
-        # Mostrar a tabela com os dados
-        for item in dados_funcionarios:
-            col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
-            quantidade_oficinas = len(item["Oficinas"])
+    # Configurando o AgGrid para seleção única e para as colunas se expandirem
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
+    gb.configure_selection('single', use_checkbox=False)
+    gridOptions = gb.build()
+    gridOptions["domLayout"] = "autoHeight"
 
+    # Exibe o grid interativo usando a chave armazenada
+    grid_response = AgGrid(
+        df,
+        gridOptions=gridOptions,
+        use_container_width=True,
+        height=500,       # Garante que o grid ocupe toda a largura disponível
+        update_mode="SELECTION_CHANGED",
+        fit_columns_on_grid_load=True,
+        rowHeight=60,
+        key=st.session_state.grid_key
+    )
 
-            shortened_name = textwrap.shorten(item["Nome"], width=30, placeholder="...")
+    # Recupera as linhas selecionadas
+    selected_rows = grid_response.get('selected_rows', [])
+    if isinstance(selected_rows, pd.DataFrame) and not selected_rows.empty:
+        selected_row = selected_rows.iloc[0].to_dict()
+        st.session_state.selected_user = selected_row['Cod']
 
-            
-            col1.write(item["Cod"])
-            col2.write(shortened_name)
-            col3.write(item["CPF"])
-            col4.write(item["Salário"])
-            col5.write(quantidade_oficinas)
+    # Exibe as informações do usuário selecionado, se houver
+    if st.session_state.selected_user is not None:
+        selected_user_data = next((item for item in dados_funcionarios if item['Cod'] == st.session_state.selected_user), None)
+        if selected_user_data:
+            imprimir_colaborador(selected_user_data)
 
-            button_space_ver = col6.empty() 
-            on_click_ver = button_space_ver.button("Ver", "btmVer" + str(item["Cod"]))
-            button_space_alterar = col7.empty() 
-            on_click_alterar = button_space_alterar.button("Alterar", "btmAlterar" + str(item["Cod"]))
-
-            # Ação para o botão "Ver"
-            if on_click_ver:
-                st.session_state["ver_funcionario"] = item["Cod"]
-                st.rerun()
-
-            # Ação para o botão "Alterar"
-            if on_click_alterar:
-                st.session_state["alterar_funcionario"] = item["Cod"]
-                st.rerun()  # Reinicia a página para exibir o formulário de alteração
-        st.markdown("<hr>", unsafe_allow_html=True)
-
-# Inicialização da variável de estado
-if "alterar_funcionario" not in st.session_state:
-    st.session_state["alterar_funcionario"] = None
-    st.session_state["ver_funcionario"] = None
-
-# Iniciar a execução da função Listar
-Listar(dados_funcionarios)
-
-
+colaborador()
 
 with st.sidebar:
     #st.logo("Imagens/BannerASIN.png", icon_image="Imagens/LogoASIN.png")
