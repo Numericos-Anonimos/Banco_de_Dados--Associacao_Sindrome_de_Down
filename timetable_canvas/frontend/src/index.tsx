@@ -50,7 +50,7 @@ class Timetables {
     } else {
       palette = style.palette ? (style.palette || []).concat(this.defaultPalette) : this.palette;
     }
-    // Note que usamos this.Timetables diretamente para garantir a atualização
+    // Usamos this.Timetables diretamente para garantir a atualização
     const week = option.week || this.week;
     let TimetableType = JSON.parse(JSON.stringify(option.timetableType || this.TimetableType));
     const deepCopyTimetableType = option.timetableType || this.TimetableType;
@@ -188,57 +188,62 @@ class Timetables {
         // Define índices para o callback
         const rowIndex = index;
         const colIndex = i;
-        courseItem.onclick = (e: MouseEvent) => {
-          // Usa o target clicado
-          const target = e.currentTarget as HTMLLIElement;
-          // Remove a classe ativa de todas as células
-          document.querySelectorAll(".Courses-content ul li").forEach((v: Element) => {
-            (v as HTMLElement).classList.remove("grid-active");
-          });
-          target.classList.add("grid-active");
+        // Dentro da função courseItem.onclick:
+courseItem.onclick = (e: MouseEvent) => {
+  const target = e.currentTarget as HTMLLIElement;
+  // Remove a classe ativa de todas as células
+  document.querySelectorAll(".Courses-content ul li").forEach((v: Element) => {
+    (v as HTMLElement).classList.remove("grid-active");
+  });
+  target.classList.add("grid-active");
 
-          // Verifica se a célula possui um <span> (caso seja mesclada)
-          let currentValue = "";
-          const spanChild = target.querySelector("span") as HTMLElement | null;
-          if (spanChild) {
-            currentValue = spanChild.innerText;
-          } else {
-            currentValue = target.innerText;
-          }
-          // Exibe um prompt para editar/adicionar o valor
-          const newValue = prompt("Digite o novo valor para este horário:", currentValue);
-          if (newValue === null) return; // usuário cancelou
+  // Obtém o valor atual da célula
+  let currentValue = "";
+  const spanChild = target.querySelector("span") as HTMLElement | null;
+  if (spanChild) {
+    currentValue = spanChild.innerText;
+  } else {
+    currentValue = target.innerText;
+  }
 
-          // Atualiza o valor exibido na célula
-          if (spanChild) {
-            spanChild.innerText = newValue;
-          } else {
-            target.innerText = newValue;
-          }
+  // Exibe um prompt para editar/adicionar o valor
+  const newValue = prompt("Digite o novo valor para este horário:", currentValue);
+  if (newValue === null) return; // usuário cancelou
 
-          // Atualiza o estilo da célula conforme o conteúdo
-          if (newValue.trim() !== "") {
-            // Atualiza o fundo e a cor do texto para indicar que há conteúdo
-            target.style.backgroundColor = (Array.isArray(palette) && palette.length > 0 ? palette[0] : "#71bdb6");
-            target.style.color = "#fff";
-            target.classList.add("course-hasContent");
-          } else {
-            target.style.backgroundColor = "";
-            target.style.color = "";
-            target.classList.remove("course-hasContent");
-          }
+  // Atualiza o valor exibido na célula
+  if (spanChild) {
+    spanChild.innerText = newValue;
+  } else {
+    target.innerText = newValue;
+  }
 
-          // Atualiza o array original (propriedade da instância)
-          self.Timetables[rowIndex][colIndex] = newValue;
-          const info = {
-            name: newValue,
-            week: week[colIndex],
-            index: rowIndex + 1,
-            length: merge ? listMerge[colIndex][rowIndex].length : 1
-          };
-          gridOnClick && gridOnClick(info);
-          Streamlit.setComponentValue(self.Timetables);
-        };
+  // Atualiza o estilo da célula conforme o conteúdo
+  if (newValue.trim() !== "") {
+    target.style.backgroundColor = (Array.isArray(palette) && palette.length > 0 ? palette[0] : "#71bdb6");
+    target.style.color = "#fff";
+    target.classList.add("course-hasContent");
+  } else {
+    target.style.backgroundColor = "";
+    target.style.color = "";
+    target.classList.remove("course-hasContent");
+  }
+
+  // Atualiza o array original
+  self.Timetables[colIndex][rowIndex] = newValue; // Índices invertidos
+
+  // Cria o objeto com as informações desejadas
+  const info = {
+    text: newValue,          // Texto inserido
+    day: week[colIndex],       // Dia da semana correspondente (do array week)
+    schedule: rowIndex + 1     // Horário (número da linha, começando em 1)
+  };
+
+  // Se houver callback, dispara-o
+  gridOnClick && gridOnClick(info);
+  // Retorna o objeto info para o Streamlit
+  Streamlit.setComponentValue(info);
+};
+
 
         courseItems.appendChild(courseItem);
       });
@@ -265,6 +270,7 @@ class Timetables {
       const leftHandTextItem = document.createElement("div");
       leftHandTextItem.className = "left-hand-Text";
       leftHandTextItem.innerText = item.toString();
+      //Aqui dá pra definir o background atrás dos horários se quiser.
       const height = courseItemDomHeight * (merge ? (deepCopyTimetableType.shift() || [])[1] : 1) + "px";
       leftHandTextItem.style.height = height;
       leftHandTextDom.appendChild(leftHandTextItem);

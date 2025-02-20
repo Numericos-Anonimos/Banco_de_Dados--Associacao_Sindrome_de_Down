@@ -188,91 +188,47 @@ def Atendidos():
 
     else:
         st.markdown(f"<h1 style='font-size: 40px;'>Procurar Atendido</h1>", unsafe_allow_html=True)
-
-        # Barra de pesquisa com sugestões dinâmicas
         nome_atendido = st.text_input("Digite o nome do atendido:")
-        st.write("\n")
-        st.write("\n\n\n\n\n")
-        st.write("\n")
-        st.write("\n")
-        st.write("\n")
-        st.write("\n")
+        
+        # Espaçamento (opcional)
+        st.write("\n" * 5)  
 
-
-        columns = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])  # Definição das larguras das colunas
+        # Cabeçalho da tabela
+        columns = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
         campos = ["**Nº**", "**Nome**", "**Data de Nascimento**", "**Status**", "**Convênio**", "**Ver**", "**Alterar**"]
-
-        # Exibe o cabeçalho da tabela
         for col, campo_nome in zip(columns, campos):
             col.write(campo_nome)
 
-        # Filtra os atendidos com base no texto digitado
         if nome_atendido:
             sugestões = [item['Nome'] for item in dados if nome_atendido.lower() in item['Nome'].lower()]
-
-            # Exibe as sugestões enquanto o usuário digita
+            
             if sugestões:
                 for sugestao in sugestões:
-                    if st.button(sugestao):  # Quando a sugestão é clicada
-                        st.session_state.selected_atendido = sugestao  # Salva o atendido selecionado
-                        break  # Para evitar múltiplas seleções
+                    if st.button(sugestao):
+                        st.session_state.selected_atendido = sugestao
+                        st.rerun()  # Atualiza imediatamente para a visualização detalhada
+                        break
             else:
                 st.error("Atendido não encontrado!")
-
-            # Exibe os dados filtrados na tabela
-            for item in dados:
-                if nome_atendido.lower() in item['Nome'].lower():
-                    col1, col2, col3, col4, col5, col6, col7 = st.columns([1,3, 2, 1.5, 1.5, 1, 1.5])
-
-                    # Exibe os dados do atendido
-                    col1.write(item['Cod'])
-                    col2.write(item["Nome"])
-                    col3.write(item["Data de Nascimento"])
-                    col4.write(item["Status"])
-                    col5.write(item["Convênio"])
-
-                    # Espaços para os botões
-                    button_space_ver = col6.empty() 
-                    on_click_ver = button_space_ver.button("Ver", "btmVer" + str(item["Cod"]))
-                    button_space_alterar = col7.empty() 
-                    on_click_alterar = button_space_alterar.button("Alterar", "btmAlterar" + str(item["Cod"]))
-
-                    # Ação para o botão "Ver"
-                    if on_click_ver:
-                        st.session_state["ver_atendido"] = item["Cod"]
-                        st.rerun()
-
-                    # Ação para o botão "Alterar"
-                    if on_click_alterar:
-                        st.session_state["alterar_atendido"] = item["Cod"]
-                        st.rerun()  # Reinicia a página para exibir o formulário de alteração
         else:
-            # Caso não tenha nenhum nome inserido, mostra todos os atendidos
+            # Exibe todos os atendidos apenas se não houver pesquisa
             for item in dados:
                 col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
-
-                # Exibe os dados do atendido
+                
                 col1.write(item['Cod'])
                 col2.write(item["Nome"])
-                col3.write(item["Data de Nascimento"])
-                col4.write(item["Status"])
+                col3.write(format_date(item["Data de Nascimento"], 'dd/MM/yyyy', locale='pt_BR'))
+                col4.write("✅" if item["Status"] else "❌")
                 col5.write(item["Convênio"])
 
-                # Espaços para os botões
-                button_space_ver = col6.empty() 
-                on_click_ver = button_space_ver.button("Ver", "btmVer" + str(item["Cod"]))
-                button_space_alterar = col7.empty() 
-                on_click_alterar = button_space_alterar.button("Alterar", "btmAlterar" + str(item["Cod"]))
-
-                # Ação para o botão "Ver"
-                if on_click_ver:
-                    st.session_state["ver_atendido"] = item["Cod"]
+                if col6.button("Ver", key=f"ver_{item['Cod']}"):
+                    st.session_state.selected_atendido = item["Nome"]
+                    st.rerun()
+                
+                if col7.button("Alterar", key=f"alt_{item['Cod']}"):
+                    st.session_state.alterar_atendido = item["Cod"]
                     st.rerun()
 
-                # Ação para o botão "Alterar"
-                if on_click_alterar:
-                    st.session_state["alterar_atendido"] = item["Cod"]
-                    st.rerun()  # Reinicia a página para exibir o formulário de alteração
 
 
 
