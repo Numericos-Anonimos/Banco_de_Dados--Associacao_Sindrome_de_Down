@@ -162,31 +162,6 @@ dados = [{
 def format_status(status):
     return "✅" if status else "❌"
 
-def format_data(data):
-    return data.strftime('%d/%m/%Y') if isinstance(data, (datetime, date)) else data
-
-def format_list(lista):
-    return ", ".join([format_data(item) for item in lista]) if isinstance(lista, list) else lista
-
-def format_dict(dicionario):
-    return "; ".join([f"{key}: {value}" for key, value in dicionario.items()]) if isinstance(dicionario, dict) else dicionario
-
-def format_contatos(contatos):
-    return "; ".join([f"{tel} ({desc})" for tel, desc in contatos]) if isinstance(contatos, list) else contatos
-
-def format_eventos(eventos):
-    return "; ".join([f"{nome} ({format_data(data)}): {desc}" for nome, data, desc in eventos]) if isinstance(eventos, list) else eventos
-
-
-
-
-
-
-
-
-
-
-
 # Função para calcular idade
 def calcular_idade(data_nascimento):
     hoje = date.today()
@@ -301,86 +276,116 @@ def imprime_colaborador(atendido_info):
 
 
 # Função para procurar atendido
+import uuid
+
 def Atendidos():
-        st.title("📋 Procurar Atendidos")
+    st.title("📋 Procurar Atendidos")
 
-        # Injetando CSS customizado para alterar a cor secundária de fundo do grid (tema Alpine)
-        st.markdown(
-            """
-            <style>
-            .ag-theme-alpine {
-                --ag-secondary-background-color: #005f88;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
+    # Injetando CSS customizado para alterar a cor secundária de fundo do grid (tema Alpine)
+    st.markdown(
+        """
+        <style>
+        .ag-theme-alpine {
+            --ag-secondary-background-color: #005f88;
+        }
+        .small-button button {
+            width: 100px;  /* Tamanho menor */
+            font-size: 8px;
+            padding: 0px;
+            background-color: #ff4b4b;
+            color: white;
+            border-radius: 0px;
+            border: none;
+            cursor: pointer;
+        }
+        .small-button button:hover {
+            background-color: #ff1f1f;
+        }
+        .spaced-button {
+            margin-top: 28px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Inicializa o estado da sessão
+    if "selected_user" not in st.session_state:
+        st.session_state.selected_user = None
+    if "nome_atendido" not in st.session_state:
+        st.session_state.nome_atendido = ""
+    if "grid_key" not in st.session_state:
+        st.session_state.grid_key = str(uuid.uuid4())
+
+    # Cria duas colunas para o campo de texto e o botão de limpar
+    col_input, col_button = st.columns([9, 1])
+    with col_input:
+        nome_atendido = st.text_input(
+            "Digite o nome do atendido:",
+            key=f"search_input_{st.session_state.grid_key}",
+            value=st.session_state.nome_atendido
         )
+    with col_button:
+        st.markdown('<div class="spaced-button">', unsafe_allow_html=True)
+        if st.button("Limpar", key="clear_button"):
+            st.session_state.nome_atendido = ""             # Limpa o filtro
+            st.session_state.grid_key = str(uuid.uuid4())     # Gera nova chave para reinicializar grid e input
+            st.session_state.selected_user = None             # Remove o usuário selecionado
+            st.rerun()                                        # Reexecuta o script
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        # Inicializa o estado da sessão
-        if "selected_user" not in st.session_state:
-            st.session_state.selected_user = None
-        if "nome_atendido" not in st.session_state:
-            st.session_state.nome_atendido = ""
+    st.markdown("<br>", unsafe_allow_html=True)
 
-        # Campo de texto para busca
-        nome_atendido = st.text_input("Digite o nome do atendido:", key="search_input", value=st.session_state.nome_atendido)
-        st.markdown("<br>", unsafe_allow_html=True)
+    # Filtrando os dados conforme a pesquisa
+    if nome_atendido:
+        dados_filtrados = [item for item in dados if nome_atendido.lower() in item['Nome'].lower()]
+    else:
+        dados_filtrados = dados  # Exibe todos os dados quando não há pesquisa
 
-        # Filtrando os dados conforme a pesquisa
-        if nome_atendido:
-            dados_filtrados = [item for item in dados if nome_atendido.lower() in item['Nome'].lower()]
-        else:
-            dados_filtrados = dados  # Exibe todos os dados quando não há pesquisa
+    # Se o filtro não retornar nenhum resultado, exibe uma mensagem e encerra a função
+    if not dados_filtrados:
+        st.info("Nenhum atendido encontrado com este filtro.")
+        return
 
-        # Criando DataFrame e filtrando apenas os atributos necessários
-        df = pd.DataFrame(dados_filtrados)[["Cod", "Nome", "CPF","Data de Nascimento", "Status", "Convênio"]]
-        df["Data de Nascimento"] = pd.to_datetime(df["Data de Nascimento"]).dt.strftime('%d/%m/%Y')
+    # Criando DataFrame e filtrando apenas os atributos necessários
+    df = pd.DataFrame(dados_filtrados)
+    df = df[["Cod", "Nome", "CPF", "Data de Nascimento", "Status", "Convênio"]]
+    df["Data de Nascimento"] = pd.to_datetime(df["Data de Nascimento"]).dt.strftime('%d/%m/%Y')
 
-        # Configurando o AgGrid para seleção única e para as colunas se expandirem
-        gb = GridOptionsBuilder.from_dataframe(df)
-        gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
-        gb.configure_selection('single', use_checkbox=False)
-        gridOptions = gb.build()
+    # Configurando o AgGrid para seleção única e para as colunas se expandirem
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
+    gb.configure_selection('single', use_checkbox=False)
+    gridOptions = gb.build()
+    gridOptions["domLayout"] = "autoHeight"
 
-        # Define o layout do grid para autoHeight, para que ele se ajuste ao conteúdo
-        gridOptions["domLayout"] = "autoHeight"
+    # Exibe o grid interativo usando a chave armazenada
+    grid_response = AgGrid(
+        df,
+        gridOptions=gridOptions,
+        use_container_width=True,
+        height=500,       # Garante que o grid ocupe toda a largura disponível
+        update_mode="SELECTION_CHANGED",
+        fit_columns_on_grid_load=True,
+        rowHeight=60,
+        key=st.session_state.grid_key
+    )
 
-        # Exibe o grid interativo
-        grid_response = AgGrid(
-            df,
-            gridOptions=gridOptions,
-            use_container_width=True,
-            height=500,       # Garante que o grid ocupe toda a largura disponível
-            update_mode="SELECTION_CHANGED",
-            fit_columns_on_grid_load=True,  # Ajusta as colunas para preencher o grid
-            rowHeight=60
-        )
+    st.markdown("---")
+    # Recupera as linhas selecionadas
+    selected_rows = grid_response.get('selected_rows', [])
+    if isinstance(selected_rows, pd.DataFrame) and not selected_rows.empty:
+        selected_row = selected_rows.iloc[0].to_dict()
+        st.session_state.selected_user = selected_row['Cod']
+
+    # Exibe as informações do usuário selecionado, se houver
+    if st.session_state.selected_user is not None:
+        selected_user_data = next((item for item in dados if item['Cod'] == st.session_state.selected_user), None)
+        if selected_user_data:
+            imprime_colaborador(selected_user_data)
 
 
 
-        if st.button('Limpar Tabela e Campo de Texto'):
-            # Limpa os dados filtrados e o campo de texto
-            dados_filtrados = []
-            st.session_state.nome_atendido = ""  # Limpa o campo de texto
-            st.rerun()   # Isso reinicia a execução do script e limpa a tabela
-        
-        st.markdown("---")
-        # Recupera as linhas selecionadas
-        selected_rows = grid_response.get('selected_rows', [])
-
-        # Se o retorno for um DataFrame, converte a primeira linha para dicionário
-        if isinstance(selected_rows, pd.DataFrame):
-            if not selected_rows.empty:
-                selected_row = selected_rows.iloc[0].to_dict()
-                st.session_state.selected_user = selected_row['Cod']
-                
-                # Filtra os dados para encontrar a linha com o 'Cod' selecionado
-                selected_user_data = next((item for item in dados if item['Cod'] == selected_row['Cod']), None)
-                
-                # Imprime as informações do usuário selecionado
-                if selected_user_data:
-                    imprime_colaborador(selected_user_data)
-        
 
 
 
