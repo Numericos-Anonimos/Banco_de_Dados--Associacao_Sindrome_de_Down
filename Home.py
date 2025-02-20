@@ -154,4 +154,3 @@ if st.session_state["show_contacts"]:
 with st.sidebar:
     #st.logo("Imagens/BannerASIN.png", icon_image="Imagens/LogoASIN.png")
     st.image("Imagens/BannerASIN.png", use_container_width=True)
-    st.write("Ferramentas: ")
