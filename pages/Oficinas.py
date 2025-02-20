@@ -2,10 +2,47 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time, date
 import os
-from datetime import date
+
+from timetable_canvas import timetable_canvas_generator
 
 
 st.set_page_config(page_title="Oficinas", layout="wide")
+
+def convert_to_timetable(cursos): # Para plotar o componente baseado no array de dicionários do banco de dados
+    day_map = {
+        "SEG": "Segunda",
+        "TER": "Terça",
+        "QUA": "Quarta",
+        "QUI": "Quinta",
+        "SEX": "Sexta"
+    }
+    
+    time_slots = [
+        '08:00', '09:00', '10:00', '11:00', '12:00',
+        '13:00', '14:00', '15:00', '16:00', '17:00'
+    ]
+    
+    # Grade inicializada com horários vazios
+    timetable = [['' for _ in time_slots] for _ in day_map.values()]
+    
+    for curso in cursos:
+        dia = day_map.get(curso['Dia_Semana'].upper())
+        inicio = curso['Horario_Inicio'].strftime('%H:%M')
+        fim = curso['Horario_Fim'].strftime('%H:%M')
+        
+        try:
+            idx_dia = list(day_map.values()).index(dia)
+            idx_inicio = time_slots.index(inicio)
+            idx_fim = time_slots.index(fim)
+        except (ValueError, KeyError):
+            continue
+        
+        # Cria um item para cada horário individual
+        for slot in range(idx_inicio, idx_fim):
+            horario = time_slots[slot]
+            timetable[idx_dia][slot] = f"{curso['Nome']} ({horario})"  # Item único por horário
+
+    return timetable
 
 # Dados das oficinas
 oficinas = [{
@@ -15,7 +52,7 @@ oficinas = [{
     'Projeto': "Projeto 1",
     'Data_Cadastro': date(2005, 5, 4),
     'Data_Fim': None,
-    'Dia_Semana': "SEG",
+    'Dia_Semana': "TER",
     'Horario_Inicio': time(8, 0),
     'Horario_Fim': time(10, 0),
     'Max_Participantes': 10,
@@ -33,7 +70,7 @@ oficinas = [{
     'Projeto': "Projeto 1",
     'Data_Cadastro': date(2005, 5, 4),
     'Data_Fim': None,
-    'Dia_Semana': "SEG",
+    'Dia_Semana': "QUA",
     'Horario_Inicio': time(8, 0),
     'Horario_Fim': time(10, 0),
     'Max_Participantes': 10,
@@ -52,8 +89,8 @@ oficinas = [{
     'Data_Cadastro': date(2005, 5, 4),
     'Data_Fim': None,
     'Dia_Semana': "SEG",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
+    'Horario_Inicio': time(11, 0),
+    'Horario_Fim': time(12, 0),
     'Max_Participantes': 10,
     'Valor_Hora': 10.00,
     'Descricao': "Oficina de Futebol",
@@ -175,6 +212,18 @@ def apresentar_oficinas1(oficinas):
                         st.markdown(f'<div style="text-align: center; font-size: 12px; color: gray;">{oficina["Descricao"]}</div>', unsafe_allow_html=True)
         
         st.markdown("---")
+        # Converter para grade
+        timetable = convert_to_timetable(oficinas)
+
+        # Gerar componente visual
+        updated_timetable = timetable_canvas_generator(
+            timetable,
+            timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
+                        '13:00', '14:00', '15:00', '16:00', '17:00'],
+            Gheight=100
+        )
+
+        st.write(updated_timetable)
 
 apresentar_oficinas1(oficinas)
 

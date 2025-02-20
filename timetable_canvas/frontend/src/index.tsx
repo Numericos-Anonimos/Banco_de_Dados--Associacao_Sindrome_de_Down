@@ -27,7 +27,7 @@ class Timetables {
     const styles = option.styles || {};
     this.leftHandWidth = styles.leftHandWidth || 40;
     this.Gheight = styles.Gheight || 48;
-    this.defaultPalette = ["#71bdb6"];
+    this.defaultPalette = ["#00aeef"];
     this.palette = (typeof styles.palette === "boolean" && !styles.palette)
       ? false
       : (styles.palette || []).concat(this.defaultPalette);
@@ -219,7 +219,7 @@ courseItem.onclick = (e: MouseEvent) => {
 
   // Atualiza o estilo da célula conforme o conteúdo
   if (newValue.trim() !== "") {
-    target.style.backgroundColor = (Array.isArray(palette) && palette.length > 0 ? palette[0] : "#71bdb6");
+    target.style.backgroundColor = (Array.isArray(palette) && palette.length > 0 ? palette[0] : "#00aeef");
     target.style.color = "#fff";
     target.classList.add("course-hasContent");
   } else {
@@ -290,25 +290,8 @@ function onRender(event: Event): void {
   const highlightWeek = new Date().getDay();
   const styles = {
     Gheight: Gheight,
-    leftHandWidth: 60,
-    palette: [
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6",
-      "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6", "#71bdb6"
-    ]
+    leftHandWidth: 60
   };
-
-  // Botão para capturar e baixar a imagem (se necessário)
-  const captureButton = document.querySelector(".capture");
-  if (captureButton) {
-    captureButton.setAttribute("onclick", `captureAndDownloadPNG('${key}')`);
-  }
 
   // Cria um ID único para o container do timetable
   const containerId = `coursesTable-${key}`;
@@ -341,7 +324,3 @@ document.addEventListener("DOMContentLoaded", () => {
   Streamlit.setComponentReady();
   Streamlit.setFrameHeight();
 });
-
-function captureAndDownloadPNG(key: any): any {
-  throw new Error("Function not implemented.");
-}
