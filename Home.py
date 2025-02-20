@@ -33,14 +33,17 @@ with col1:
         with st.container(border=True):
             st.page_link("pages/Colaboradores.py", label="👥 **Colaboradores**")
             st.caption("Área para a visualização dos colaboradores")
+        with st.container(border=True):
+            st.page_link("pages/Projetos.py", label="📊 **Projetos**")
+            st.caption("Visualização das projetos realizados")
 
 with col2:
         with st.container(border=True):
             st.page_link("pages/Oficinas.py", label="🛠️ **Oficinas**")
             st.caption("Visualização das Oficinas disponibilizadas")
         with st.container(border=True):
-            st.page_link("pages/VisuaOficinas.py", label="📊 **Visualização das Oficinas**")
-            st.caption("Visualização das Oficinas")
+            st.page_link("pages/Eventos.py", label="🎉 **Eventos**")
+            st.caption("Visualização das eventos realizados")
 
 
 st.markdown("---")

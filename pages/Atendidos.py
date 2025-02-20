@@ -4,6 +4,7 @@ from babel.dates import format_date
 import pandas as pd
 import os
 import requests
+from st_aggrid import AgGrid, GridOptionsBuilder
 
 # Configuração da página deve ser a primeira linha no script
 st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
@@ -56,10 +57,110 @@ dados = [{
               'Imagens/Outras/Sem título.jpg'],
     'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
                 ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
+},
+{
+    "Cod": 3,
+    'Nome': 'Thomas Pires Correia',
+    'Status': True,
+    'Data de Nascimento': datetime(2005, 5, 4),
+    'RG': '98680418X',
+    'CPF': 31997000405,
+    'Convênio': 'Unimed',
+    'Pai': 'José',
+    'Mãe': 'Maria',
+    'Responsável': None,
+    'CEP': 12221580,
+    'Número': 123,
+    'Observações': None,
+    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
+    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
+    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
+                 'QUA - 09:00 ÁS 10:00': 'Música'},
+    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
+              'Imagens/Outras/roxo.jpg', 
+              'Imagens/Outras/Sem título.jpg'],
+    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
+                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
+},
+{
+    "Cod": 4,
+    'Nome': 'Matheus Kaua',
+    'Status': False,
+    'Data de Nascimento': datetime(2005, 5, 4),
+    'RG': '98680418X',
+    'CPF': 31997000405,
+    'Convênio': 'Unimed',
+    'Pai': 'José',
+    'Mãe': 'Maria',
+    'Responsável': None,
+    'CEP': 12221580,
+    'Número': 123,
+    'Observações': None,
+    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
+    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
+    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
+                 'QUA - 09:00 ÁS 10:00': 'Música'},
+    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
+              'Imagens/Outras/roxo.jpg', 
+              'Imagens/Outras/Sem título.jpg'],
+    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
+                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
+},
+{
+    "Cod": 5,
+    'Nome': 'Reginaldo da Silva',
+    'Status': True,
+    'Data de Nascimento': datetime(2005, 5, 4),
+    'RG': '98680418X',
+    'CPF': 31997000405,
+    'Convênio': 'Unimed',
+    'Pai': 'José',
+    'Mãe': 'Maria',
+    'Responsável': None,
+    'CEP': 12221580,
+    'Número': 123,
+    'Observações': None,
+    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
+    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
+    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
+                 'QUA - 09:00 ÁS 10:00': 'Música'},
+    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
+              'Imagens/Outras/roxo.jpg', 
+              'Imagens/Outras/Sem título.jpg'],
+    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
+                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
+},
+{
+    "Cod": 6,
+    'Nome': 'Carlos Rodrigues da Silva Carvalho',
+    'Status': False,
+    'Data de Nascimento': datetime(2005, 5, 4),
+    'RG': '98680418X',
+    'CPF': 31997000405,
+    'Convênio': 'Unimed',
+    'Pai': 'José',
+    'Mãe': 'Maria',
+    'Responsável': None,
+    'CEP': 12221580,
+    'Número': 123,
+    'Observações': None,
+    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
+    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
+    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
+                 'QUA - 09:00 ÁS 10:00': 'Música'},
+    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
+              'Imagens/Outras/roxo.jpg', 
+              'Imagens/Outras/Sem título.jpg'],
+    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
+                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
 }
 
 
 ]
+
+
+def format_status(status):
+    return "✅" if status else "❌"
 
 # Função para calcular idade
 def calcular_idade(data_nascimento):
@@ -90,26 +191,10 @@ def endereco_por_cep(cep):
     else:
         return {'logradouro': 'Não encontrado', 'bairro': 'Não encontrado', 'localidade': 'Não encontrado', 'uf': 'Não encontrado'}
 
-# Função para procurar atendido
-def Atendidos():
-
-    if 'selected_atendido' in st.session_state:
-        st.empty()
-        atendido_selecionado = st.session_state.selected_atendido
-
-        # Buscar o atendido na lista de dados com base no nome
-        atendido_info = next((item for item in dados if item['Nome'] == atendido_selecionado), None)
-
-        if atendido_info is None:
-            st.error("Atendido não encontrado!")
-            return
-
-        # Início da interface com Streamlit
-        st.title("**Perfil do Atendido**")
-
+def imprime_colaborador(atendido_info):
         # Header com nome e status
         col1, col2 = st.columns([2.5, 1])
-        col1.header(atendido_selecionado)
+        col1.title(atendido_info['Nome'])
         status_emoji = "✅" if atendido_info['Status'] else "❌"
         col2.header(f"Status: {status_emoji}")
 
@@ -131,6 +216,7 @@ def Atendidos():
         col2.write(f"**Cidade:** {endereco['localidade']}")
         col3.write(f"**Estado:** {endereco['uf']}")
 
+        st.markdown("---")
         st.subheader("**Contatos**")
         cols = st.columns(3)
         for idx, (telefone, descricao) in enumerate(atendido_info['Contatos']):
@@ -139,11 +225,14 @@ def Atendidos():
                 st.markdown(f"**{descricao}:**")
                 st.write(formatted_telefone)
 
+        st.markdown("---")
+
         # Oficinas
         st.subheader("**Oficinas**")
         for horario, oficina in atendido_info['Oficinas'].items():
             st.write(f"- **{horario}**: {oficina}")
-
+            
+        st.markdown("---")
         # Presenças
         st.subheader("**Presenças**")
         min_date, max_date = min(atendido_info['Presenças']), max(atendido_info['Presenças'])
@@ -159,6 +248,8 @@ def Atendidos():
                 if intervalo_datas[0] <= i <= intervalo_datas[1]:
                     st.write(format_date(i, 'dd/MM/yyyy', locale='pt_BR'))
 
+        st.markdown("---")
+
         # Eventos
         st.subheader("**Eventos**")
         col1, col2 = st.columns(2)
@@ -170,6 +261,8 @@ def Atendidos():
             else:
                 with col2.expander(label):
                     st.write(descricao)
+                    
+        st.markdown("---")
 
         st.subheader("**Fotos**")
         if st.checkbox("Mostrar Fotos"):
@@ -179,55 +272,123 @@ def Atendidos():
                     cols[idx % 3].image(foto, use_column_width=True)
                 else:
                     st.error(f"Imagem não encontrada: {foto}")
-        
-        submit_button = st.button("Voltar")
 
-        if submit_button:
-            del st.session_state['selected_atendido']  # Limpar o estado de visualização para voltar à lista
-            st.rerun()
 
+
+# Função para procurar atendido
+import uuid
+
+def Atendidos():
+    st.title("📋 Procurar Atendidos")
+
+    # Injetando CSS customizado para alterar a cor secundária de fundo do grid (tema Alpine)
+    st.markdown(
+        """
+        <style>
+        .ag-theme-alpine {
+            --ag-secondary-background-color: #005f88;
+        }
+        .small-button button {
+            width: 100px;  /* Tamanho menor */
+            font-size: 8px;
+            padding: 0px;
+            background-color: #ff4b4b;
+            color: white;
+            border-radius: 0px;
+            border: none;
+            cursor: pointer;
+        }
+        .small-button button:hover {
+            background-color: #ff1f1f;
+        }
+        .spaced-button {
+            margin-top: 28px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Inicializa o estado da sessão
+    if "selected_user" not in st.session_state:
+        st.session_state.selected_user = None
+    if "nome_atendido" not in st.session_state:
+        st.session_state.nome_atendido = ""
+    if "grid_key" not in st.session_state:
+        st.session_state.grid_key = str(uuid.uuid4())
+
+    # Cria duas colunas para o campo de texto e o botão de limpar
+    col_input, col_button = st.columns([9, 1])
+    with col_input:
+        nome_atendido = st.text_input(
+            "Digite o nome do atendido:",
+            key=f"search_input_{st.session_state.grid_key}",
+            value=st.session_state.nome_atendido
+        )
+    with col_button:
+        st.markdown('<div class="spaced-button">', unsafe_allow_html=True)
+        if st.button("Limpar", key="clear_button"):
+            st.session_state.nome_atendido = ""             # Limpa o filtro
+            st.session_state.grid_key = str(uuid.uuid4())     # Gera nova chave para reinicializar grid e input
+            st.session_state.selected_user = None             # Remove o usuário selecionado
+            st.rerun()                                        # Reexecuta o script
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Filtrando os dados conforme a pesquisa
+    if nome_atendido:
+        dados_filtrados = [item for item in dados if nome_atendido.lower() in item['Nome'].lower()]
     else:
-        st.markdown(f"<h1 style='font-size: 40px;'>Procurar Atendido</h1>", unsafe_allow_html=True)
-        nome_atendido = st.text_input("Digite o nome do atendido:")
-        
-        # Espaçamento (opcional)
-        st.write("\n" * 5)  
+        dados_filtrados = dados  # Exibe todos os dados quando não há pesquisa
 
-        # Cabeçalho da tabela
-        columns = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
-        campos = ["**Nº**", "**Nome**", "**Data de Nascimento**", "**Status**", "**Convênio**", "**Ver**", "**Alterar**"]
-        for col, campo_nome in zip(columns, campos):
-            col.write(campo_nome)
+    # Se o filtro não retornar nenhum resultado, exibe uma mensagem e encerra a função
+    if not dados_filtrados:
+        st.info("Nenhum atendido encontrado com este filtro.")
+        return
 
-        if nome_atendido:
-            sugestões = [item['Nome'] for item in dados if nome_atendido.lower() in item['Nome'].lower()]
-            
-            if sugestões:
-                for sugestao in sugestões:
-                    if st.button(sugestao):
-                        st.session_state.selected_atendido = sugestao
-                        st.rerun()  # Atualiza imediatamente para a visualização detalhada
-                        break
-            else:
-                st.error("Atendido não encontrado!")
-        else:
-            # Exibe todos os atendidos apenas se não houver pesquisa
-            for item in dados:
-                col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 3, 2, 1.5, 1.5, 1, 1.5])
-                
-                col1.write(item['Cod'])
-                col2.write(item["Nome"])
-                col3.write(format_date(item["Data de Nascimento"], 'dd/MM/yyyy', locale='pt_BR'))
-                col4.write("✅" if item["Status"] else "❌")
-                col5.write(item["Convênio"])
+    # Criando DataFrame e filtrando apenas os atributos necessários
+    df = pd.DataFrame(dados_filtrados)
+    df = df[["Cod", "Nome", "CPF", "Data de Nascimento", "Status", "Convênio"]]
+    df["Data de Nascimento"] = pd.to_datetime(df["Data de Nascimento"]).dt.strftime('%d/%m/%Y')
 
-                if col6.button("Ver", key=f"ver_{item['Cod']}"):
-                    st.session_state.selected_atendido = item["Nome"]
-                    st.rerun()
-                
-                if col7.button("Alterar", key=f"alt_{item['Cod']}"):
-                    st.session_state.alterar_atendido = item["Cod"]
-                    st.rerun()
+    # Configurando o AgGrid para seleção única e para as colunas se expandirem
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
+    gb.configure_selection('single', use_checkbox=False)
+    gridOptions = gb.build()
+    gridOptions["domLayout"] = "autoHeight"
+
+    # Exibe o grid interativo usando a chave armazenada
+    grid_response = AgGrid(
+        df,
+        gridOptions=gridOptions,
+        use_container_width=True,
+        height=500,       # Garante que o grid ocupe toda a largura disponível
+        update_mode="SELECTION_CHANGED",
+        fit_columns_on_grid_load=True,
+        rowHeight=60,
+        key=st.session_state.grid_key
+    )
+
+    st.markdown("---")
+    # Recupera as linhas selecionadas
+    selected_rows = grid_response.get('selected_rows', [])
+    if isinstance(selected_rows, pd.DataFrame) and not selected_rows.empty:
+        selected_row = selected_rows.iloc[0].to_dict()
+        st.session_state.selected_user = selected_row['Cod']
+
+    # Exibe as informações do usuário selecionado, se houver
+    if st.session_state.selected_user is not None:
+        selected_user_data = next((item for item in dados if item['Cod'] == st.session_state.selected_user), None)
+        if selected_user_data:
+            imprime_colaborador(selected_user_data)
+
+
+
+
+
+
 
 
 
