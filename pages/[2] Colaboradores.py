@@ -2,95 +2,103 @@ import streamlit as st
 from datetime import date
 from time import sleep
 import textwrap
+from Banco_de_Dados.Colaboradores import *
+import pandas as pd
+import uuid
+from st_aggrid import AgGrid, GridOptionsBuilder
+from datetime import datetime
 
 st.session_state['current_page'] = "Home"
 
-dados_funcionarios = [
-    {
-        "Cod": 1,
-        "Nome": "João Assaoka",
-        "CPF": "123.456.789-00",
-        "Endereço": "Rua 1, 123",
-        "Observações": "Nenhuma",
-        "Salário": 1500.00,
-        "Contatos": [(31999999999, "WhatsApp da mãe"), (12222222222, "Telefone fixo do trabalho do pai")],
-        "Oficinas": {
-            "SEG - 09:00 ÀS 10:00": "Informática",
-            "QUA - 09:00 ÀS 10:00": "Música",
-        },
-        "Ponto": [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
-    },
-    {
-        "Cod": 2,
-        "Nome": "Thomas Pires Correia",
-        "CPF": "987.654.321-00",
-        "Endereço": "Rua 2, 456",
-        "Observações": "Trabalha meio período",
-        "Salário": 2000.00,
-        "Contatos": [(31988888888, "Próprio"), (11977777777, "Telefone fixo")],
-        "Oficinas": {
-            "TER - 14:00 ÀS 15:00": "Programação",
-            "QUI - 10:00 ÀS 11:00": "Matemática",
-        },
-        "Ponto": [date(2021, 6, 1), date(2021, 6, 8), date(2021, 6, 15), date(2021, 6, 22)],
-    },
-    {
-        "Cod": 3,
-        "Nome": "Lucas Molinari",
-        "CPF": "111.222.333-45",
-        "Endereço": "Rua 3, 789",
-        "Observações": "Nenhuma",
-        "Salário": 1800.00,
-        "Contatos": [(31955555555, "Celular"), (11944444445, "Telefone fixo")],
-        "Oficinas": {
-            "SEG - 10:00 ÀS 11:00": "Física",
-            "SEX - 09:00 ÀS 10:00": "Química",
-        },
-        "Ponto": [date(2021, 7, 5), date(2021, 7, 12), date(2021, 7, 19), date(2021, 7, 26)],
-    },
-    {
-        "Cod": 4,
-        "Nome": "Marcelo Gustavo Felipe Campos Silva Ferreira",
-        "CPF": "333.444.555-66",
-        "Endereço": "Rua 4, 101",
-        "Observações": "Nenhuma",
-        "Salário": 2200.00,
-        "Contatos": [(31955555556, "Celular"), (11944444446, "Telefone fixo")],
-        "Oficinas": {
-            "SEG - 10:00 ÀS 11:00": "Química",
-            "SEX - 09:00 ÀS 10:00": "Física",
-        },
-        "Ponto": [date(2021, 8, 5), date(2021, 8, 12), date(2021, 8, 19), date(2021, 8, 26)],
-    },
-    {
-        "Cod": 5,
-        "Nome": "Miguel Costa Silva",
-        "CPF": "444.555.666-77",
-        "Endereço": "Rua 5, 202",
-        "Observações": "Nenhuma",
-        "Salário": 2500.00,
-        "Contatos": [(31955555557, "Celular"), (11944444447, "Telefone fixo")],
-        "Oficinas": {
-            "TER - 14:00 ÀS 15:00": "Matemática",
-            "QUI - 10:00 ÀS 11:00": "Programação",
-        },
-        "Ponto": [date(2021, 9, 5), date(2021, 9, 12), date(2021, 9, 19), date(2021, 9, 26)],
-    },
-    {
-        "Cod": 6,
-        "Nome": "Lucas Castelani Souza",
-        "CPF": "555.666.777-88",
-        "Endereço": "Rua 6, 303",
-        "Observações": "Nenhuma",
-        "Salário": 3000.00,
-        "Contatos": [(31955555558, "Celular"), (11944444448, "Telefone fixo")],
-        "Oficinas": {
-            "SEG - 10:00 ÀS 11:00": "Física",
-            "SEX - 09:00 ÀS 10:00": "Química",
-        },
-        "Ponto": [date(2021, 10, 5), date(2021, 10, 12), date(2021, 10, 19), date(2021, 10, 26)],
-    },
-]
+# dados_funcionarios = [
+#     {
+#         "Cod": 1,
+#         "Nome": "João Assaoka",
+#         "CPF": "123.456.789-00",
+#         "Endereço": "Rua 1, 123",
+#         "Observações": "Nenhuma",
+#         "Salário": 1500.00,
+#         "Contatos": [(31999999999, "WhatsApp da mãe"), (12222222222, "Telefone fixo do trabalho do pai")],
+#         "Oficinas": {
+#             "SEG - 09:00 ÀS 10:00": "Informática",
+#             "QUA - 09:00 ÀS 10:00": "Música",
+#         },
+#         "Ponto": [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
+#     },
+#     {
+#         "Cod": 2,
+#         "Nome": "Thomas Pires Correia",
+#         "CPF": "987.654.321-00",
+#         "Endereço": "Rua 2, 456",
+#         "Observações": "Trabalha meio período",
+#         "Salário": 2000.00,
+#         "Contatos": [(31988888888, "Próprio"), (11977777777, "Telefone fixo")],
+#         "Oficinas": {
+#             "TER - 14:00 ÀS 15:00": "Programação",
+#             "QUI - 10:00 ÀS 11:00": "Matemática",
+#         },
+#         "Ponto": [date(2021, 6, 1), date(2021, 6, 8), date(2021, 6, 15), date(2021, 6, 22)],
+#     },
+#     {
+#         "Cod": 3,
+#         "Nome": "Lucas Molinari",
+#         "CPF": "111.222.333-45",
+#         "Endereço": "Rua 3, 789",
+#         "Observações": "Nenhuma",
+#         "Salário": 1800.00,
+#         "Contatos": [(31955555555, "Celular"), (11944444445, "Telefone fixo")],
+#         "Oficinas": {
+#             "SEG - 10:00 ÀS 11:00": "Física",
+#             "SEX - 09:00 ÀS 10:00": "Química",
+#         },
+#         "Ponto": [date(2021, 7, 5), date(2021, 7, 12), date(2021, 7, 19), date(2021, 7, 26)],
+#     },
+#     {
+#         "Cod": 4,
+#         "Nome": "Marcelo Gustavo Felipe Campos Silva Ferreira",
+#         "CPF": "333.444.555-66",
+#         "Endereço": "Rua 4, 101",
+#         "Observações": "Nenhuma",
+#         "Salário": 2200.00,
+#         "Contatos": [(31955555556, "Celular"), (11944444446, "Telefone fixo")],
+#         "Oficinas": {
+#             "SEG - 10:00 ÀS 11:00": "Química",
+#             "SEX - 09:00 ÀS 10:00": "Física",
+#         },
+#         "Ponto": [date(2021, 8, 5), date(2021, 8, 12), date(2021, 8, 19), date(2021, 8, 26)],
+#     },
+#     {
+#         "Cod": 5,
+#         "Nome": "Miguel Costa Silva",
+#         "CPF": "444.555.666-77",
+#         "Endereço": "Rua 5, 202",
+#         "Observações": "Nenhuma",
+#         "Salário": 2500.00,
+#         "Contatos": [(31955555557, "Celular"), (11944444447, "Telefone fixo")],
+#         "Oficinas": {
+#             "TER - 14:00 ÀS 15:00": "Matemática",
+#             "QUI - 10:00 ÀS 11:00": "Programação",
+#         },
+#         "Ponto": [date(2021, 9, 5), date(2021, 9, 12), date(2021, 9, 19), date(2021, 9, 26)],
+#     },
+#     {
+#         "Cod": 6,
+#         "Nome": "Lucas Castelani Souza",
+#         "CPF": "555.666.777-88",
+#         "Endereço": "Rua 6, 303",
+#         "Observações": "Nenhuma",
+#         "Salário": 3000.00,
+#         "Contatos": [(31955555558, "Celular"), (11944444448, "Telefone fixo")],
+#         "Oficinas": {
+#             "SEG - 10:00 ÀS 11:00": "Física",
+#             "SEX - 09:00 ÀS 10:00": "Química",
+#         },
+#         "Ponto": [date(2021, 10, 5), date(2021, 10, 12), date(2021, 10, 19), date(2021, 10, 26)],
+#     },
+# ]
+
+
+dados_funcionarios = listar_funcionarios()
 
 def calcular_idade(data_nascimento):
     hoje = date.today()
@@ -104,22 +112,18 @@ def formatar_cep(cep):
     return f"{cep:08d}"[:5] + '-' + f"{cep:08d}"[5:]
 
 def formatar_telefone(telefone):
-    telefone = f"{telefone:011d}"
+    telefone = "".join(filter(str.isdigit, telefone))  # Remove caracteres não numéricos
+    telefone = telefone.zfill(11)  # Garante que tenha 11 dígitos, preenchendo com zeros à esquerda se necessário
     return f"({telefone[:2]}) {telefone[2:7]}-{telefone[7:]}"
 
 
-
-
-import pandas as pd
-import uuid
-from st_aggrid import AgGrid, GridOptionsBuilder
 
 
 def imprimir_colaborador(funcionario_selecionado):
         st.empty()
         nome_completo = funcionario_selecionado['Nome']
         primeiros_nomes = " ".join(nome_completo.split()[:2])  # Pega os dois primeiros nomes
-
+        st.markdown("---")
         st.markdown(f"<h1 style='font-size: 60px;'>Perfil:  {primeiros_nomes}</h1>", unsafe_allow_html=True)
 
     
@@ -128,47 +132,84 @@ def imprimir_colaborador(funcionario_selecionado):
         col1_detalhes.write(f"**Nome Completo:** {funcionario_selecionado['Nome']}")
         col2_detalhes.write(f"**CPF:** {funcionario_selecionado['CPF']}")
 
-        st.write(f"Endereço: {funcionario_selecionado['Endereço']}")
-        st.write(f"Salário: {funcionario_selecionado['Salário']}")
-        st.write(f"Observações: {funcionario_selecionado['Observações']}")
+        #st.write(f"Endereço: {funcionario_selecionado['Endereço']}")
+        if(funcionario_selecionado['Salario']):
+            st.write(f"Salário: {funcionario_selecionado['Salario']}")
+        else:
+            st.write(f"Salário: não inserido")
+        
+        if(funcionario_selecionado['Observacoes']):
+            st.write(f"Observações: {funcionario_selecionado['Observacoes']}")
+        else:
+            st.write(f"Observações: não inserido")
 
         st.markdown("---")
         # Contatos
-        st.subheader("**Contatos**")
+        funcionario_selecionado_contatos = funcionario_contatos(funcionario_selecionado["Cod_Funcionario"])
         cols = st.columns(3)
-        for idx, (telefone, descricao) in enumerate(funcionario_selecionado['Contatos']):
-            formatted_telefone = formatar_telefone(telefone)
-            with cols[idx % 3].container(border=True):
-                st.markdown(f"**{descricao}:**")
-                st.write(formatted_telefone)
-        st.markdown("---")
-        # Oficinas
+
+        contatos = funcionario_selecionado_contatos
+
+        st.subheader("📞 **Contatos**")
+        cols = st.columns(3)  # Criar colunas para organizar os contatos
+
+        # Iterar sobre os contatos e exibir na interface
+        for idx, contato in enumerate(contatos):
+            if isinstance(contato, tuple) and len(contato) == 2:  # Verificar se o formato da tupla está correto
+                telefone, descricao = contato
+                formatted_telefone = formatar_telefone(telefone)  # Formatar o telefone corretamente
+                
+                with cols[idx % 3].container(border=True):
+                    st.markdown(f"**{descricao}:**")
+                    st.write(formatted_telefone)
+                    
+        st.markdown("---")  # Linha separadora para organização
+
+        funcionario_selecionado_oficinas = funcionario_oficinas(funcionario_selecionado["Cod_Funcionario"])
+
         st.subheader("**Oficinas**")
-        for horario, oficina in funcionario_selecionado['Oficinas'].items():
+        for horario, oficina in funcionario_selecionado_oficinas.items():
             st.write(f"- **{horario}**: {oficina}")
         st.markdown("---")
+        
+
+        funcionario_selecionado_pontos = funcionario_ponto(funcionario_selecionado["Cod_Funcionario"])
+
         # Presenças
-        st.subheader("**Pontos**")
-        min_date, max_date = min(funcionario_selecionado['Ponto']), max(funcionario_selecionado['Ponto'])
+        pontos_formatados = [
+            (datetime.strptime(data, "%Y-%m-%d"), entrada, saida)
+            for data, entrada, saida in funcionario_selecionado_pontos
+        ]
 
-        cols = st.columns(2)
-        intervalo_datas = [cols[0].date_input("Data Inicial", min_date, min_value=min_date, max_value=max_date, format="DD/MM/YYYY")]
-        intervalo_datas.append(cols[1].date_input("Data Final", max_date, min_value=intervalo_datas[0], max_value=max_date, format="DD/MM/YYYY"))
+        # Encontrar a menor e maior data
+        min_date = min(pontos_formatados, key=lambda x: x[0])[0]
+        max_date = max(pontos_formatados, key=lambda x: x[0])[0]
 
-        # Contabilizando as presenças no intervalo
-        st.write(f"Pontos no intervalo selecionado: {len([i for i in funcionario_selecionado['Ponto'] if intervalo_datas[0] <= i <= intervalo_datas[1]])}")
+        # Criar um dicionário simulando os pontos do funcionário
+        funcionario_selecionado = {"Ponto": [p[0] for p in pontos_formatados]}
 
-        with st.expander("Datas de Ponto"):
-            for i in funcionario_selecionado['Ponto']:
-                if intervalo_datas[0] <= i <= intervalo_datas[1]:
-                    st.write(i.strftime('%d/%m/%Y'))  # Exibindo a data no formato desejado
+        # Definir um intervalo de datas (exemplo: do primeiro ao último ponto registrado)
+        intervalo_datas = (min_date, max_date)
 
-        submit_button = st.button("Voltar")
+        # Contar pontos no intervalo selecionado
+        pontos_no_intervalo = [
+            i for i in funcionario_selecionado["Ponto"] if intervalo_datas[0] <= i <= intervalo_datas[1]
+        ]
 
-        if submit_button:
-            st.session_state.selected_user = None  # Limpar o estado de visualização para voltar à lista
-            st.rerun()
+        # Exibição no Streamlit
+        st.subheader("📊 **Pontos**")
+        st.write(f"**Período:** {min_date.strftime('%d/%m/%Y')} - {max_date.strftime('%d/%m/%Y')}")
+        st.write(f"Pontos no intervalo selecionado: {len(pontos_no_intervalo)}")
 
+        # Exibir os pontos detalhadamente
+        st.write("### Registro de Pontos:")
+        for data, entrada, saida in pontos_formatados:
+            st.write(f"📅 **{data.strftime('%d/%m/%Y')}** → 🕘 {entrada} - 🕛 {saida}")
+
+        # Expansor para mostrar as datas no intervalo
+        with st.expander("📅 **Datas de Ponto**"):
+            for i in pontos_no_intervalo:
+                st.write(i.strftime('%d/%m/%Y'))  # Exibir data formatada
 
 
 
@@ -243,7 +284,7 @@ def colaborador():
 
     # Criando DataFrame e filtrando apenas os atributos necessários
     df = pd.DataFrame(dados_filtrados)
-    df = df[["Cod", "Nome", "CPF","Salário"]]
+    df = df[["Cod_Funcionario","Nome", "CPF","Salario"]]
 
     # Configurando o AgGrid para seleção única e para as colunas se expandirem
     gb = GridOptionsBuilder.from_dataframe(df)
@@ -268,11 +309,11 @@ def colaborador():
     selected_rows = grid_response.get('selected_rows', [])
     if isinstance(selected_rows, pd.DataFrame) and not selected_rows.empty:
         selected_row = selected_rows.iloc[0].to_dict()
-        st.session_state.selected_user = selected_row['Cod']
+        st.session_state.selected_user = selected_row['Cod_Funcionario']
 
     # Exibe as informações do usuário selecionado, se houver
     if st.session_state.selected_user is not None:
-        selected_user_data = next((item for item in dados_funcionarios if item['Cod'] == st.session_state.selected_user), None)
+        selected_user_data = next((item for item in dados_funcionarios if item['Cod_Funcionario'] == st.session_state.selected_user), None)
         if selected_user_data:
             imprimir_colaborador(selected_user_data)
 
