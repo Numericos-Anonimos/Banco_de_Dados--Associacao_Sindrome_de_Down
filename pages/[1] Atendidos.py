@@ -128,8 +128,8 @@ def imprime_colaborador(atendido_info):
             return f"{cep[:5]}-{cep[5:]}"
 
         endereco = endereco_por_cep(atendido_info['CEP'])
-
-        st.subheader("**Endereço**")
+        
+        
         col1, col2, col3 = st.columns(3)
 
         col1.write(f"**Logradouro:** {endereco.get('logradouro', 'Não informado')}")
@@ -144,7 +144,7 @@ def imprime_colaborador(atendido_info):
 
         atendido_cont = atendido_contatos(atendido_info["Cod_Atendido"])
 
-        st.subheader("**Contatos**")
+        st.subheader("📞 **Contatos**")
 
         # Verifica se há contatos antes de iterar
         if atendido_cont and isinstance(atendido_cont, list):
@@ -166,8 +166,8 @@ def imprime_colaborador(atendido_info):
 
         # Oficinas
         st.subheader("**Oficinas**")
-        for horario, oficina in atendidos_ofc.items():
-            st.write(f"- **{horario}**: {oficina}")
+        for horario, of in atendidos_ofc.items():
+            st.write(f"- **{horario}**: {of[3]}")
 
             
         st.markdown("---")
@@ -243,7 +243,7 @@ def imprime_colaborador(atendido_info):
             for idx, foto in enumerate(atendido_fot):
                 try:
                     # Construindo caminho absoluto da imagem
-                    caminho_imagem = os.path.abspath(os.path.join("Imagens/Outras", os.path.basename(foto)))
+                    caminho_imagem = os.path.abspath(os.path.join("Banco de Imagens", os.path.basename(foto)))
                     
                     with cols[idx % 3]:
                         if os.path.exists(caminho_imagem):
@@ -253,9 +253,14 @@ def imprime_colaborador(atendido_info):
                 except Exception as e:
                     st.error(f"Erro ao carregar imagem: {str(e)}")
                     continue  # Continua para próxima imagem mesmo com erro
+        
+        st.markdown("---")
+
+
 
         # Garantindo que o timetable sempre será renderizado
         try:
+            st.subheader("**Horário**")
             timetable = convert_to_timetable(dados, atendido_info['Nome'])
             updated_timetable = timetable_canvas_generator(
                 timetable,
