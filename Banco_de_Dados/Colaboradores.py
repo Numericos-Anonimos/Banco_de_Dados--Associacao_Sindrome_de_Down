@@ -9,9 +9,9 @@ def listar_funcionarios():
             SELECT 
                 f.Cod_Funcionario AS "Cod_Funcionario", f.Nome AS "Nome", f.Status AS "Status",
                 f.CPF AS "CPF", f.CEP AS "CEP", f.Numero AS "Numero", f.Complemento AS "Complemento",
-                f.Observacoes AS "Observacoes", f.Salario + 10 AS "Salario"
+                f.Observacoes AS "Observacoes", f.Salario AS "Salario"
             FROM Funcionarios f
-            LEFT JOIN Oficinas o ON o.Cod_Funcionario = f.Cod_Funcionario
+            -- LEFT JOIN Oficinas o ON o.Cod_Funcionario = f.Cod_Funcionario
         """))
         columns = result.keys()
 
