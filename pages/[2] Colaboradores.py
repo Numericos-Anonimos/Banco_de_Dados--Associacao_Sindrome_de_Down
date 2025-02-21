@@ -285,6 +285,7 @@ def colaborador():
     # Criando DataFrame e filtrando apenas os atributos necessários
     df = pd.DataFrame(dados_filtrados)
     df = df[["Cod_Funcionario","Nome", "CPF","Salario"]]
+    df["Salario"] = df["Salario"].fillna("---")
 
     # Configurando o AgGrid para seleção única e para as colunas se expandirem
     gb = GridOptionsBuilder.from_dataframe(df)
