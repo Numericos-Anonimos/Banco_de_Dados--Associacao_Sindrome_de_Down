@@ -86,36 +86,87 @@ def exibir_dados(dados: dict):
 
 
 def apresentar_oficinas2(oficinas):
-        st.title("Oficinas")
-        st.markdown("<br>", unsafe_allow_html=True)
+    st.title("Oficinas")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-        gb = GridOptionsBuilder.from_dataframe(oficinas)
-        gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
-        gb.configure_selection('single', use_checkbox=False)
-        gridOptions = gb.build()
-        gridOptions["domLayout"] = "autoHeight"
 
-        grid_response = AgGrid(
-            oficinas,
-            gridOptions=gridOptions,
-            use_container_width=True,
-            height=500,
-            update_mode='SELECTION_CHANGED',
-            fit_columns_on_grid_load=True,
-            rowHeight=30,
-            key='grid_oficinas'
+    st.markdown(
+        """
+        <style>
+        .ag-theme-alpine {
+            --ag-secondary-background-color: #005f88;
+        }
+        .small-button button {
+            width: 100px;  /* Tamanho menor */
+            font-size: 8px;
+            padding: 0px;
+            background-color: #ff4b4b;
+            color: white;
+            border-radius: 0px;
+            border: none;
+            cursor: pointer;
+        }
+        .small-button button:hover {
+            background-color: #ff1f1f;
+        }
+        .spaced-button {
+            margin-top: 28px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # Estado da sessão para controle do input
+    if "filtro_oficina" not in st.session_state:
+        st.session_state.filtro_oficina = ""
+
+    # Layout do input e botão limpar
+    col1, col2 = st.columns([9, 1])
+    with col1:
+        filtro = st.text_input(
+            "Filtrar oficinas por nome:",
+            value=st.session_state.filtro_oficina,
+            key="filtro_input"
         )
+    with col2:
+        if st.button("Limpar"):
+            st.session_state.filtro_oficina = ""
+            st.rerun()
 
-        st.markdown("---")
+    # Filtra oficinas se houver um termo digitado
+    oficinas_filtradas = oficinas[oficinas["Nome"].str.contains(filtro, case=False, na=False)] if filtro else oficinas
 
-        selected = grid_response.get("selected_rows")
-        if selected is None or selected.empty:
-            st.info("Nenhuma oficina selecionada.")
-        else:
-            cod_oficina = selected.iloc[0]["Código"]
-            oficina = bd.buscar_oficina(cod_oficina)
-            exibir_dados(oficina)
-        
+    # Criando grid interativa
+    gb = GridOptionsBuilder.from_dataframe(oficinas_filtradas)
+    gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
+    gb.configure_selection('single', use_checkbox=False)
+    gridOptions = gb.build()
+    gridOptions["domLayout"] = "autoHeight"
+
+    grid_response = AgGrid(
+        oficinas_filtradas,
+        gridOptions=gridOptions,
+        use_container_width=True,
+        height=500,
+        update_mode='SELECTION_CHANGED',
+        fit_columns_on_grid_load=True,
+        rowHeight=30,
+        key='grid_oficinas'
+    )
+
+    st.markdown("---")
+
+    selected = grid_response.get("selected_rows")
+
+    if not selected:
+        st.info("Nenhuma oficina selecionada.")
+    else:
+        cod_oficina = selected[0]["Código"]
+        oficina = bd.buscar_oficina(cod_oficina)
+        exibir_dados(oficina)
+
 
 
 

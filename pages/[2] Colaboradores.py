@@ -270,23 +270,23 @@ def colaborador():
     # Inicializa o estado da sessão
     if "selected_user" not in st.session_state:
         st.session_state.selected_user = None
-    if "nome_atendido" not in st.session_state:
-        st.session_state.nome_atendido = ""
+    if "nome_funcionario" not in st.session_state:
+        st.session_state.nome_funcionario = ""
     if "grid_key" not in st.session_state:
         st.session_state.grid_key = str(uuid.uuid4())
 
     # Cria duas colunas para o campo de texto e o botão de limpar
     col_input, col_button = st.columns([9, 1])
     with col_input:
-        nome_atendido = st.text_input(
+        nome_funcionario = st.text_input(
             "Digite o nome do colaborador:",
             key=f"search_input_{st.session_state.grid_key}",
-            value=st.session_state.nome_atendido
+            value=st.session_state.nome_funcionario
         )
     with col_button:
         st.markdown('<div class="spaced-button">', unsafe_allow_html=True)
         if st.button("Limpar", key="clear_button"):
-            st.session_state.nome_atendido = ""             # Limpa o filtro
+            st.session_state.nome_funcionario = ""             # Limpa o filtro
             st.session_state.grid_key = str(uuid.uuid4())     # Gera nova chave para reinicializar grid e input
             st.session_state.selected_user = None             # Remove o usuário selecionado
             st.rerun()                                        # Reexecuta o script
@@ -295,8 +295,8 @@ def colaborador():
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Filtrando os dados conforme a pesquisa
-    if nome_atendido:
-        dados_filtrados = [item for item in dados_funcionarios if nome_atendido.lower() in item['Nome'].lower()]
+    if nome_funcionario:
+        dados_filtrados = [item for item in dados_funcionarios if nome_funcionario.lower() in item['Nome'].lower()]
     else:
         dados_filtrados = dados_funcionarios  # Exibe todos os dados quando não há pesquisa
 
@@ -315,19 +315,21 @@ def colaborador():
     gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
     gb.configure_selection('single', use_checkbox=False)
     gridOptions = gb.build()
-    gridOptions["domLayout"] = "autoHeight"
+    gridOptions["domLayout"] = "normal"  # Evita altura desnecessária
 
     # Exibe o grid interativo usando a chave armazenada
     grid_response = AgGrid(
         df,
         gridOptions=gridOptions,
         use_container_width=True,
-        height=500,       # Garante que o grid ocupe toda a largura disponível
+        height=270,  # Reduz a altura para diminuir espaço vazio
         update_mode="SELECTION_CHANGED",
         fit_columns_on_grid_load=True,
         rowHeight=60,
         key=st.session_state.grid_key
     )
+    
+    st.markdown("---")
 
     # Recupera as linhas selecionadas
     selected_rows = grid_response.get('selected_rows', [])
@@ -339,7 +341,6 @@ def colaborador():
     if st.session_state.selected_user is not None:
         selected_user_data = next((item for item in dados_funcionarios if item['Cod_Funcionario'] == st.session_state.selected_user), None)
         if selected_user_data:
-            st.markdown("---")
             imprimir_colaborador(selected_user_data)
 
 colaborador()

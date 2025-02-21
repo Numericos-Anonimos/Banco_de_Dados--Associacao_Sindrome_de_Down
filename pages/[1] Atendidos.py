@@ -269,8 +269,6 @@ def imprime_colaborador(atendido_info):
                 except Exception as e:
                     st.error(f"Erro ao carregar imagem: {str(e)}")
                     continue  # Continua para próxima imagem mesmo com erro
-        
-        st.markdown("---")
 
 
 
