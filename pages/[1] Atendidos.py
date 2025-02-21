@@ -12,7 +12,7 @@ from Banco_de_Dados.Atendidos import *
 #st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
 
 
-def convert_to_timetable(dados, nome_pessoa):
+def convert_to_timetable(dados):
     day_map = {
         "SEG": "Segunda",
         "TER": "Terça",
@@ -28,31 +28,27 @@ def convert_to_timetable(dados, nome_pessoa):
     
     timetable = [['' for _ in time_slots] for _ in day_map.values()]
     
-    for pessoa in dados:
-        if pessoa['Nome'] == nome_pessoa:
-            oficinas = pessoa.get('Oficinas', {})
+    for horario_key, entry in dados.items():
+            # Extrair dia e horários da chave
+            dia_part, tempo_part = horario_key.split(' - ')
+            inicio_str, fim_str = tempo_part.split(' ÀS ')
             
-            for horario_key, nome_oficina in oficinas.items():
-                try:
-                    # Extrair dia e horários da chave
-                    dia_part, tempo_part = horario_key.split(' - ')
-                    inicio_str, fim_str = tempo_part.split(' ÁS ')
-                    
-                    # Converter para formatos padrão
-                    dia = day_map[dia_part.strip().upper()]
-                    idx_dia = list(day_map.values()).index(dia)
-                    
-                    # Encontrar índices dos horários
-                    idx_inicio = time_slots.index(inicio_str.strip())
-                    idx_fim = time_slots.index(fim_str.strip())
-                    
-                    # Preencher a grade
-                    for slot in range(idx_inicio, idx_fim):
-                        timetable[idx_dia][slot] = f"{nome_oficina} ({time_slots[slot]})"
-                        
-                except (KeyError, ValueError, AttributeError):
-                    continue
-                    
+            # Converter para formatos padrão (HH:MM)
+            inicio_str = inicio_str.strip()[:5]
+            fim_str = fim_str.strip()[:5]
+            
+            # Obter dia traduzido e índice
+            dia = day_map[dia_part.strip().upper()]
+            idx_dia = list(day_map.values()).index(dia)
+            
+            # Encontrar índices dos horários
+            idx_inicio = time_slots.index(inicio_str)
+            idx_fim = time_slots.index(fim_str)
+            
+            # Preencher a grade
+            for slot in range(idx_inicio, idx_fim):
+                timetable[idx_dia][slot] = f"{entry[3]} ({time_slots[slot]})"
+    
     return timetable
 
 # Dados de exemplo
@@ -163,6 +159,7 @@ def imprime_colaborador(atendido_info):
 
 
         atendidos_ofc = atendidos_oficina(atendido_info["Cod_Atendido"])
+        st.write(atendidos_ofc)
 
         # Oficinas
         st.subheader("**Oficinas**")
@@ -261,7 +258,7 @@ def imprime_colaborador(atendido_info):
         # Garantindo que o timetable sempre será renderizado
         try:
             st.subheader("**Horário**")
-            timetable = convert_to_timetable(dados, atendido_info['Nome'])
+            timetable = convert_to_timetable(atendidos_ofc)
             updated_timetable = timetable_canvas_generator(
                 timetable,
                 timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
