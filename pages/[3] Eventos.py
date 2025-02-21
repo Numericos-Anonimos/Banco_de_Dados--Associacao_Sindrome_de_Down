@@ -6,8 +6,6 @@ from Banco_de_Dados.Eventos import *
 from datetime import datetime
 import uuid
 
-eventos = listar_eventos()
-
 
 def apresentando_eventos():
     st.title("Eventos Realizados")
@@ -110,11 +108,10 @@ def apresentando_eventos():
 
     st.markdown("---")
 
+
 # Chamada da função principal
+eventos = listar_eventos()
 apresentando_eventos()
 
-
-
-# Sidebar
 with st.sidebar:
    st.image("Imagens/BannerASIN.png", use_container_width=True)

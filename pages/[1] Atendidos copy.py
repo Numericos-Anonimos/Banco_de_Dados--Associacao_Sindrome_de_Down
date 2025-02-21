@@ -7,9 +7,8 @@ import requests
 from st_aggrid import AgGrid, GridOptionsBuilder
 from timetable_canvas import timetable_canvas_generator
 from Banco_de_Dados.Atendidos import *
+import uuid
 
-# Configuração da página deve ser a primeira linha no script
-#st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
 
 
 def convert_to_timetable(dados):
@@ -51,24 +50,10 @@ def convert_to_timetable(dados):
     
     return timetable
 
-# Dados de exemplo
-dados = listar_atendidos()
-
 
 def format_status(status):
     return "✅" if status else "❌"
 
-# Função para calcular idade
-def calcular_idade(data_nascimento):
-    hoje = date.today()
-    return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
-
-# Função para formatar CPF
-def formatar_cpf(cpf):
-    return f"{cpf:011d}"[:3] + '.' + f"{cpf:011d}"[3:6] + '.' + f"{cpf:011d}"[6:9] + '-' + f"{cpf:011d}"[9:]  
-
-def formatar_cep(cep):
-    return f"{cep:08d}"[:5] + '-' + f"{cep:08d}"[5:]
 
 # Função para formatar telefone
 def formatar_telefone(telefone):
@@ -93,22 +78,43 @@ def endereco_por_cep(cep):
     else:
         return {'logradouro': 'Não encontrado', 'bairro': 'Não encontrado', 'localidade': 'Não encontrado', 'uf': 'Não encontrado'}
 
+
+def calcular_idade(data_nasc):
+        """ Calcula a idade com base na data de nascimento. """
+        data_nascimento = datetime.strptime(data_nasc, "%Y-%m-%d %H:%M:%S")
+        hoje = datetime.today()
+        return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+
+
+def formatar_cpf(cpf):
+    """ Formata CPF no padrão XXX.XXX.XXX-XX. """
+    return f"{cpf[:3]}.{cpf[4:7]}.{cpf[8:11]}-{cpf[12:]}"
+
+
+def formatar_cep(cep):
+    """ Formata o CEP no padrão XXXXX-XXX """
+    return f"{cep[:5]}-{cep[5:]}"
+
+
+def plot_evento(nome, data, descricao):
+            label = f"📊 {nome} ({format_date(data, 'dd/MM/yyyy', locale='pt_BR')})"
+            if descricao is 'Sem descrição':
+                with st.container(border=True):
+                    st.write(label)
+            else:
+                with st.expander(label):
+                    st.write(descricao)
+
+
+
+# Função que imprime as informações do Atendido selecionado:
 def imprime_colaborador(atendido_info):
+
         # Header com nome e status
         col1, col2 = st.columns([2.5, 1])
         col1.title(atendido_info['Nome'])
         status_emoji = "✅" if atendido_info['Status'] else "❌"
         col2.header(f"Status: {status_emoji}")
-
-        def calcular_idade(data_nasc):
-            """ Calcula a idade com base na data de nascimento. """
-            data_nascimento = datetime.strptime(data_nasc, "%Y-%m-%d %H:%M:%S")
-            hoje = datetime.today()
-            return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
-
-        def formatar_cpf(cpf):
-            """ Formata CPF no padrão XXX.XXX.XXX-XX. """
-            return f"{cpf[:3]}.{cpf[4:7]}.{cpf[8:11]}-{cpf[12:]}"
 
         # Formatando os dados recebidos
         st.subheader("**Dados Pessoais**")
@@ -119,12 +125,7 @@ def imprime_colaborador(atendido_info):
         col4.write(f"**Convênio:** {atendido_info['Convenio']}")
 
         # Endereço
-        def formatar_cep(cep):
-            """ Formata o CEP no padrão XXXXX-XXX """
-            return f"{cep[:5]}-{cep[5:]}"
-
         endereco = endereco_por_cep(atendido_info['CEP'])
-        
         
         col1, col2, col3 = st.columns(3)
 
@@ -232,15 +233,6 @@ def imprime_colaborador(atendido_info):
 
         # Eventos
         st.subheader("**Eventos**")
-        def plot_evento(nome, data, descricao):
-            label = f"📊 {nome} ({format_date(data, 'dd/MM/yyyy', locale='pt_BR')})"
-            if descricao is 'Sem descrição':
-                with st.container(border=True):
-                    st.write(label)
-            else:
-                with st.expander(label):
-                    st.write(descricao)
-                    
         cols = st.columns(2)
         for idx, (nome, data, descricao) in enumerate(atendido_event):
             with cols[idx % 2]:
@@ -248,13 +240,10 @@ def imprime_colaborador(atendido_info):
 
         st.markdown("---")
 
-        import os
-
         # Garantindo que atendido_fot seja uma lista válida antes de processá-la
         atendido_fot = atendido_foto(atendido_info["Cod_Atendido"]) or []
 
         st.subheader("**Fotos**")
-
         if st.checkbox("Mostrar Fotos"):
             cols = st.columns(3)
 
@@ -276,8 +265,7 @@ def imprime_colaborador(atendido_info):
 
 
 
-# Função para procurar atendido
-import uuid
+
 
 def Atendidos():
     st.title("📋 Procurar Atendidos")
@@ -390,17 +378,12 @@ def Atendidos():
 
 
 
-
-
-
-
-
-
-
-
 # Chama a função principal
-Atendidos()
+if __name__ == "__main__":
 
-with st.sidebar:
-    #st.logo("Imagens/BannerASIN.png", icon_image="Imagens/LogoASIN.png")
-    st.image("Imagens/BannerASIN.png", use_container_width=True)
+    dados = listar_atendidos()
+    Atendidos()
+
+    with st.sidebar:
+        #st.logo("Imagens/BannerASIN.png", icon_image="Imagens/LogoASIN.png")
+        st.image("Imagens/BannerASIN.png", use_container_width=True)

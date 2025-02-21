@@ -74,6 +74,5 @@ def listar_projetos(dados):
 # Controle de navegação
 listar_projetos(dados_projetos)
 
-# Sidebar
 with st.sidebar:
     st.image("Imagens/BannerASIN.png", use_container_width=True)

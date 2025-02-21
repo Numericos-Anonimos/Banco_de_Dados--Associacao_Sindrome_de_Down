@@ -10,10 +10,6 @@ import Banco_de_Dados.Oficinas as bd
 #st.set_page_config(page_title="Oficinas", layout="wide")
 
 
-oficinas_bd = bd.listar_oficinas() 
-
-if 'edit_mode' not in st.session_state:
-    st.session_state.edit_mode = False
 
 def sub_hora(ini:time, fim:time):
     return (fim.hour - ini.hour) * 60 + (fim.minute - ini.minute)
@@ -184,9 +180,9 @@ def apresentar_oficinas2(oficinas):
 
 
 
+# Interface
+oficinas_bd = bd.listar_oficinas() 
 apresentar_oficinas2(oficinas_bd)
-
-
 
 with st.sidebar:
     #st.logo("Imagens/BannerASIN.png", icon_image="Imagens/LogoASIN.png")
