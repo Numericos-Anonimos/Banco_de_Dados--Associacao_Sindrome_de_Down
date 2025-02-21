@@ -31,7 +31,7 @@ def listar_projetos(dados):
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                 background: #005f88;
                 text-align: center;
-                width: 310px;
+                width: 100%;
             }
             .card h3, .card p {
                 color: #ffffff;

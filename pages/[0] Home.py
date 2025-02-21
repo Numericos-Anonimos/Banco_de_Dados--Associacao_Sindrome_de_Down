@@ -44,6 +44,9 @@ with col2:
         with st.container(border=True):
             st.page_link("pages/[3] Eventos.py", label="🎉 **Eventos**")
             st.caption("Visualização das eventos realizados")
+        with st.container(border=True):
+            st.page_link("pages/[6] Busca_Imagens.py", label="🔍 **Busca de Imagens**")
+            st.caption("Busca de imagens que atendam condições específicas")
 
 
 st.markdown("---")

@@ -48,6 +48,9 @@ def apresentando_eventos():
     # Seção de Filtros
     col_input, col_button = st.columns([9, 1])
     with col_input:
+        if "nome_evento" not in st.session_state:
+            st.session_state.nome_evento = ""
+
         nome_evento = st.text_input("Digite o nome do evento:", key=f"search_input_{st.session_state.grid_key}",value=st.session_state.nome_evento)
 
     with col_button:
@@ -89,12 +92,17 @@ def apresentando_eventos():
             col1, col2 = st.columns([3, 1])
 
             with col1:
-                st.subheader(evento["Evento"])
                 data_evento = datetime.strptime(evento["Data"], "%Y-%m-%d %H:%M:%S")
-                st.write(f"**Data:** {data_evento.strftime('%d/%m/%Y %H:%M')}")  # Inclui horário no formato correto
-                st.write(f"**Observação:** {evento['Observações'] if evento['Observações'] else 'Nenhuma'}")
-                st.write(f"**Quantidade de Externos:** {evento['Externos']}")
-                st.write(f"**Quantidade de Funcionários:** {evento['Funcionários']}")
+                st.subheader(f'{evento["Evento"]} ({data_evento.strftime('%d/%m/%Y')})')  # Inclui horário no formato correto
+
+                cols = st.columns(4)
+                cols[0].metric("Externos", evento["Externos"])
+                cols[1].metric("Funcionários", evento["Funcionários"])
+                cols[2].metric("Atendidos", evento["Atendidos"])
+                cols[3].metric("Total", evento["Externos"] + evento["Funcionários"] + evento["Atendidos"])
+
+                st.write("**Observação:**")
+                st.write(f"{evento['Observações'] if evento['Observações'] else 'Nenhuma'}")
 
             with col2:
                 if evento.get('Imagem'):

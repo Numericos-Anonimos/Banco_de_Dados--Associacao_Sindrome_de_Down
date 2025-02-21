@@ -48,7 +48,7 @@ def convert_to_timetable(dados):
             
             # Preencher a grade
             for slot in range(idx_inicio, idx_fim):
-                timetable[idx_dia][slot] = f"{entry} ({time_slots[slot]})"
+                timetable[idx_dia][slot] = f"{entry[3]} ({time_slots[slot]})"
     
     return timetable
 
@@ -159,7 +159,7 @@ def imprimir_colaborador(funcionario_selecionado):
         st.subheader("**Oficinas**")
 
         # Extrai os dias disponíveis dos horários
-        dias_disponiveis = ["Todos"] + sorted(set(horario.split(" - ")[0] for horario in funcionario_selecionado_oficinas.keys()))
+        _ = """dias_disponiveis = ["Todos"] + sorted(set(horario.split(" - ")[0] for horario in funcionario_selecionado_oficinas.keys()))
 
         # Caixa de seleção para escolher o dia
         dia_escolhido = st.selectbox("Escolha o dia da semana:", dias_disponiveis)
@@ -167,7 +167,7 @@ def imprimir_colaborador(funcionario_selecionado):
         # Exibe as oficinas filtradas
         for horario, oficina in funcionario_selecionado_oficinas.items():
             if dia_escolhido == "Todos" or horario.startswith(dia_escolhido):
-                st.write(f"- **{horario}**: {oficina}")
+                st.write(f"- **{horario}**: {oficina}")"""
         
         try:
             timetable = convert_to_timetable(funcionario_selecionado_oficinas)
@@ -200,7 +200,7 @@ def imprimir_colaborador(funcionario_selecionado):
             max_date = max(pontos_formatados, key=lambda x: x[0])[0]
 
             # Filtro de datas pelo usuário
-            st.subheader("📊 **Filtro de Período**")
+            st.subheader("📊 **Ponto**")
             col1, col2 = st.columns(2)
             with col1:
                 data_inicio = st.date_input("Selecione a data inicial", min_date)

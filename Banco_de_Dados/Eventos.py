@@ -11,7 +11,8 @@ def listar_eventos():
                 e.Nome AS "Evento",
                 e.Data AS "Data",
                 e.Observacoes AS "Observações",
-                COUNT(DISTINCT a.Cod_Atendido) AS "Externos",
+                e.Quantidade_Externos AS "Externos",
+                COUNT(DISTINCT a.Cod_Atendido) AS "Atendidos",
                 COUNT(DISTINCT f.Cod_Funcionario) AS "Funcionários"
             FROM Eventos e
             LEFT JOIN Atendido_Eventos a ON a.Cod_Evento = e.Cod_Evento

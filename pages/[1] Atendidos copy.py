@@ -215,7 +215,7 @@ def imprime_colaborador(atendido_info):
 
             with st.expander("Datas de presença"):
                 for data in presencas_filtradas:
-                    st.write(format_date(data, 'dd/MM/yyyy', locale='pt_BR'))  # Agora data é um objeto date
+                    st.write("-", format_date(data, 'dd/MM/yyyy', locale='pt_BR'))  # Agora data é um objeto date
 
         else:
             st.write("Nenhuma presença registrada.")
@@ -245,7 +245,7 @@ def imprime_colaborador(atendido_info):
         for idx, (nome, data, descricao) in enumerate(atendido_event):
             with cols[idx % 2]:
                 plot_evento(nome, data, descricao)        
-                    
+
         st.markdown("---")
 
         import os
@@ -271,6 +271,8 @@ def imprime_colaborador(atendido_info):
                 except Exception as e:
                     st.error(f"Erro ao carregar imagem: {str(e)}")
                     continue  # Continua para próxima imagem mesmo com erro
+        
+        st.markdown("---")
 
 
 
