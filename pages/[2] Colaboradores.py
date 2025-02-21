@@ -7,8 +7,48 @@ import pandas as pd
 import uuid
 from st_aggrid import AgGrid, GridOptionsBuilder
 from datetime import datetime
+from timetable_canvas import timetable_canvas_generator
 
 st.session_state['current_page'] = "Home"
+
+def convert_to_timetable(dados):
+    day_map = {
+        "SEG": "Segunda",
+        "TER": "Terça",
+        "QUA": "Quarta",
+        "QUI": "Quinta",
+        "SEX": "Sexta"
+    }
+    
+    time_slots = [
+        '08:00', '09:00', '10:00', '11:00', '12:00',
+        '13:00', '14:00', '15:00', '16:00', '17:00'
+    ]
+    
+    timetable = [['' for _ in time_slots] for _ in day_map.values()]
+    
+    for horario_key, entry in dados.items():
+            # Extrair dia e horários da chave
+            dia_part, tempo_part = horario_key.split(' - ')
+            inicio_str, fim_str = tempo_part.split(' ÀS ')
+            
+            # Converter para formatos padrão (HH:MM)
+            inicio_str = inicio_str.strip()[:5]
+            fim_str = fim_str.strip()[:5]
+            
+            # Obter dia traduzido e índice
+            dia = day_map[dia_part.strip().upper()]
+            idx_dia = list(day_map.values()).index(dia)
+            
+            # Encontrar índices dos horários
+            idx_inicio = time_slots.index(inicio_str)
+            idx_fim = time_slots.index(fim_str)
+            
+            # Preencher a grade
+            for slot in range(idx_inicio, idx_fim):
+                timetable[idx_dia][slot] = f"{entry} ({time_slots[slot]})"
+    
+    return timetable
 
 dados_funcionarios = listar_funcionarios()
 
@@ -79,9 +119,22 @@ def imprimir_colaborador(funcionario_selecionado):
 
         funcionario_selecionado_oficinas = funcionario_oficinas(funcionario_selecionado["Cod_Funcionario"])
 
-        st.subheader("**Oficinas**")
-        for horario, oficina in funcionario_selecionado_oficinas.items():
-            st.write(f"- **{horario}**: {oficina}")
+        try:
+            st.subheader("**Oficinas**")
+            timetable = convert_to_timetable(funcionario_selecionado_oficinas)
+            updated_timetable = timetable_canvas_generator(
+                timetable,
+                timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
+                            '13:00', '14:00', '15:00', '16:00', '17:00'],
+                Gheight=100
+            )
+            if (updated_timetable):
+                updated_timetable['Nome'] = funcionario_selecionado['Nome']
+                st.write(updated_timetable)
+        except Exception as e:
+            st.error("Erro ao gerar a grade horária:")
+            st.exception(e)  # Mostra detalhes do erro sem quebrar o app
+
         st.markdown("---")
         
 

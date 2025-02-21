@@ -159,14 +159,23 @@ def imprime_colaborador(atendido_info):
 
 
         atendidos_ofc = atendidos_oficina(atendido_info["Cod_Atendido"])
-        st.write(atendidos_ofc)
+        # Garantindo que o timetable sempre será renderizado
+        try:
+            st.subheader("**Oficinas**")
+            timetable = convert_to_timetable(atendidos_ofc)
+            updated_timetable = timetable_canvas_generator(
+                timetable,
+                timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
+                            '13:00', '14:00', '15:00', '16:00', '17:00'],
+                Gheight=100
+            )
+            if (updated_timetable):
+                updated_timetable['Nome'] = atendido_info['Nome']
+                st.write(updated_timetable)
+        except Exception as e:
+            st.error("Erro ao gerar a grade horária:")
+            st.exception(e)  # Mostra detalhes do erro sem quebrar o app
 
-        # Oficinas
-        st.subheader("**Oficinas**")
-        for horario, of in atendidos_ofc.items():
-            st.write(f"- **{horario}**: {of[3]}")
-
-            
         st.markdown("---")
 
         atendido_pres = atendido_presencas(atendido_info["Cod_Atendido"]) or []
@@ -252,25 +261,6 @@ def imprime_colaborador(atendido_info):
                     continue  # Continua para próxima imagem mesmo com erro
         
         st.markdown("---")
-
-
-
-        # Garantindo que o timetable sempre será renderizado
-        try:
-            st.subheader("**Horário**")
-            timetable = convert_to_timetable(atendidos_ofc)
-            updated_timetable = timetable_canvas_generator(
-                timetable,
-                timetableType=['08:00', '09:00', '10:00', '11:00', '12:00', 
-                            '13:00', '14:00', '15:00', '16:00', '17:00'],
-                Gheight=100
-            )
-            if (updated_timetable):
-                updated_timetable['Nome'] = atendido_info['Nome']
-                st.write(updated_timetable)
-        except Exception as e:
-            st.error("Erro ao gerar a grade horária:")
-            st.exception(e)  # Mostra detalhes do erro sem quebrar o app
 
 
 
