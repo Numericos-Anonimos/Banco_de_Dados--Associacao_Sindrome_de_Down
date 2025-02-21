@@ -40,7 +40,6 @@ dados_projetos = [
     }
 ]
 
-
 def listar_projetos(dados):
     st.title("Projetos da Associação")
 

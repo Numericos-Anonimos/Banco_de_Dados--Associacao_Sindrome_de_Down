@@ -335,7 +335,9 @@ def imprime_colaborador(atendido_info):
                             '13:00', '14:00', '15:00', '16:00', '17:00'],
                 Gheight=100
             )
-            st.write(updated_timetable)
+            if (updated_timetable):
+                updated_timetable['Nome'] = atendido_info['Nome']
+                st.write(updated_timetable)
         except Exception as e:
             st.error("Erro ao gerar a grade horária:")
             st.exception(e)  # Mostra detalhes do erro sem quebrar o app
