@@ -5,17 +5,8 @@ from datetime import date
 from Banco_de_Dados.Eventos import *
 from datetime import datetime
 
-# """
-# eventos = [
-#     {"Cod_Evento": 1, "Nome": "Festa Junina", "Data": date(2021, 5, 4), "Observacao": "", "Quantidade_Externos": 40,"Imagem":["Imagens/Outras/competição de natação.jpeg"]},
-#     {"Cod_Evento": 2, "Nome": "Natal Solidário", "Data": date(2021, 12, 20), "Observacao": "Distribuição de presentes", "Quantidade_Externos": 60,"Imagem":["Imagens/Outras/competição de natação.jpeg"]},
-#     {"Cod_Evento": 3, "Nome": "Palestra Motivacional", "Data": date(2022, 3, 15), "Observacao": "Convidado especial", "Quantidade_Externos": 25,"Imagem":["Imagens/Outras/competição de natação.jpeg"]},
-#     {"Cod_Evento": 4, "Nome": "Dia da Família", "Data": date(2022, 6, 10), "Observacao": "Atividades recreativas", "Quantidade_Externos": 50},
-#     {"Cod_Evento": 5, "Nome": "Semana Cultural", "Data": date(2022, 9, 5), "Observacao": "Exposições e apresentações", "Quantidade_Externos": 80,"Imagem":["Imagens/Outras/competição de natação.jpeg"]},
-#     {"Cod_Evento": 6, "Nome": "Workshop de Tecnologia", "Data": date(2023, 2, 18), "Observacao": "Demonstrações de IA", "Quantidade_Externos": 30,"Imagem":["Imagens/Outras/competição de natação.jpeg"]}
-# ]
-# """
 eventos = listar_eventos()
+
 
 def apresentando_eventos():
     st.title("Eventos Realizados")
@@ -87,7 +78,7 @@ def apresentando_eventos():
     eventos_filtrados = [
         evento for evento in eventos
         if data_inicio <= datetime.strptime(evento["Data"], "%Y-%m-%d %H:%M:%S").date() <= data_fim and
-        (nome_evento.lower() in evento["Nome"].lower() if nome_evento else True)
+        (nome_evento.lower() in evento["Evento"].lower() if nome_evento else True)
     ]
     
     if not eventos_filtrados:
@@ -98,11 +89,11 @@ def apresentando_eventos():
             col1, col2 = st.columns([3, 1])
             
             with col1:
-                st.subheader(evento["Nome"])
+                st.subheader(evento["Evento"])
                 data_evento = datetime.strptime(evento["Data"], "%Y-%m-%d %H:%M:%S")
                 st.write(f"**Data:** {data_evento.strftime('%d/%m/%Y')}")
-                st.write(f"**Observação:** {evento['Observacoes'] if evento['Observacoes'] else 'Nenhuma'}")
-                st.write(f"**Quantidade de Externos:** {evento['Quantidade_Externos']}")
+                st.write(f"**Observação:** {evento['Observações'] if evento['Observações'] else 'Nenhuma'}")
+                st.write(f"**Quantidade de Externos:** {evento['Externos']}")
             
             with col2:
                 if evento.get('Imagem'):

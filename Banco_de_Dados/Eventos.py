@@ -24,8 +24,6 @@ def listar_eventos():
     
     return eventos
 
-print(listar_eventos())
-
 def imagens_evento (Cod_Evento):
     with engine.connect() as con:
         query = sqlalchemy.text("""
@@ -40,3 +38,6 @@ def imagens_evento (Cod_Evento):
         fotos =  [row[0] for row in fotos]
 
     return fotos
+
+
+print(listar_eventos())
