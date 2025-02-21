@@ -123,7 +123,7 @@ def imprimir_colaborador(funcionario_selecionado):
         st.empty()
         nome_completo = funcionario_selecionado['Nome']
         primeiros_nomes = " ".join(nome_completo.split()[:2])  # Pega os dois primeiros nomes
-        st.markdown("---")
+
         st.markdown(f"<h1 style='font-size: 60px;'>Perfil:  {primeiros_nomes}</h1>", unsafe_allow_html=True)
 
     
