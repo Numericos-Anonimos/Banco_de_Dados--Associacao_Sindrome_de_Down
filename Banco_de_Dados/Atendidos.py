@@ -102,3 +102,6 @@ def atendido_eventos (Cod_Atendido):
         eventos = [(row[0], row[1], row[2]) for row in eventos]
 
     return eventos
+
+
+print(listar_atendidos())
