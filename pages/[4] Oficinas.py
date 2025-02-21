@@ -4,131 +4,13 @@ from datetime import datetime, time, date
 from st_aggrid import AgGrid, GridOptionsBuilder
 import os
 
+import Banco_de_Dados.Oficinas as bd
+
 
 #st.set_page_config(page_title="Oficinas", layout="wide")
 
-def apresentar_oficinas1(oficinas):
-    if "oficina_selecionada" in st.session_state and st.session_state["oficina_selecionada"]:
-        oficina_selecionada = st.session_state["oficina_selecionada"]
-        dados = oficina_selecionada.copy()
-        
-        edit_mode = st.session_state.get('edit_mode', False)
-        
-        if not st.session_state.edit_mode:
-            cols = st.columns([2.5, 1])
-            cols[0].title(f'{dados["Nome"]}')
-            cols[1].header(f'Status: {"✅" if dados["Data_Fim"] is None else "❌"}')
-            st.markdown("<br>",unsafe_allow_html=True)
 
-            cols = st.columns(3)
-            cols[0].write(f'**Categoria**: {dados["Categoria"]}')
-            cols[1].write(f'**Projeto**: {dados["Projeto"]}')
-            cols[2].write(f'**Data de Cadastro**: {dados["Data_Cadastro"].strftime("%d/%m/%Y")}{"" if dados["Data_Fim"] is None else f" - {dados["Data_Fim"].strftime("%d/%m/%Y")}" }')
-
-            cols = st.columns(3)
-            cols[0].write(f'**Dia da Semana**: {dados["Dia_Semana"]}')
-            cols[1].write(f'**Horário**: {dados["Horario_Inicio"].strftime("%H:%M")} às {dados["Horario_Fim"].strftime("%H:%M")} ({sub_hora(dados["Horario_Inicio"], dados["Horario_Fim"])} minutos)')
-            cols[2].write(f'**Usuários**: {len(dados["Participantes"])} / {dados["Max_Participantes"]}')
-
-            cols = st.columns(3)
-            cols[0].write(f'**Oficineiro**: {dados["Oficineiro"]}')
-            cols[1].write(f'**Valor por Hora**: R$ {dados["Valor_Hora"]:.2f}')
-            cols[2].write(f'**Total**: R$ {len(dados["Houve_Oficina"]) * sub_hora(dados["Horario_Inicio"], dados["Horario_Fim"]) * dados["Valor_Hora"] / 60:.2f}')
-            
-            st.write(f'**Descrição**: {dados["Descricao"]}')
-
-            if st.button("Editar"):
-                st.session_state.edit_mode = True
-                st.rerun()
-
-            st.markdown("---")
-            st.header("Presenças")
-            min_date, max_date = min(dados['Houve_Oficina']), max(dados['Houve_Oficina'])
-            cols = st.columns(2)
-
-            selected_dates = [cols[0].date_input("Data Inicial", min_date, min_value=min_date, max_value=max_date, format="DD/MM/YYYY")]
-            selected_dates.append(cols[1].date_input("Data Final", max_date, min_value=selected_dates[0], max_value=max_date, format="DD/MM/YYYY"))
-
-            show_all_dates = st.checkbox("Mostrar todas as datas")
-
-            if show_all_dates:
-                all_dates = pd.date_range(selected_dates[0], selected_dates[1])
-                date_list = [d.date() for d in all_dates]
-            else:
-                date_list = [d for d in dados['Houve_Oficina'] if selected_dates[0] <= d <= selected_dates[1]]
-
-            date_strings = [d.strftime("%d/%m/%Y") for d in date_list]
-            df = pd.DataFrame(index=dados['Participantes'].keys(), columns=date_strings, dtype=str)
-
-            for participante, presencas in dados['Participantes'].items():
-                for data in date_list:
-                    data_str = data.strftime("%d/%m/%Y")
-                    df.loc[participante, data_str] = "✅" if data in presencas else "❌" if data in dados['Houve_Oficina'] else "⬜"
-
-            st.dataframe(df, use_container_width=True)
-
-            st.markdown("---")
-            st.subheader("Fotos")
-            if st.checkbox("Mostrar Fotos"):
-                cols = st.columns(3)
-                for idx, foto in enumerate(dados['Fotos']):
-                    if os.path.exists(foto):
-                        cols[idx % 3].image(foto, use_column_width=True)
-                    else:
-                        st.error(f"Imagem não encontrada: {foto}")
-            if st.button("Voltar"):
-                st.session_state["oficina_selecionada"] = None
-                st.rerun()
-
-        else:
-            novos_dados = dados.copy()
-            novos_dados["Nome"] = st.text_input("Nome", value=dados["Nome"])
-            novos_dados["Categoria"] = st.text_input("Categoria", value=dados["Categoria"])
-            novos_dados["Max_Participantes"] = st.number_input("Máximo de Participantes", value=dados["Max_Participantes"], min_value=1, max_value=100)
-            novos_dados["Valor_Hora"] = st.number_input("Valor por Hora", value=dados["Valor_Hora"], min_value=0.01, format="%.2f", step=1.0)
-            novos_dados["Descricao"] = st.text_area("Descrição", value=dados["Descricao"])
-            
-            cols = st.columns(2)
-            if cols[0].button("Salvar", use_container_width=True):
-                dados.update(novos_dados)
-                st.session_state.edit_mode = False
-                st.rerun()
-            if cols[1].button("Cancelar", use_container_width=True):
-                st.session_state.edit_mode = False
-                st.rerun()
-            st.info("Modo de edição ativado. Altere os campos e clique em 'Salvar alterações'.")
-    else:
-        st.title("Nossas Oficinas")
-        oficinas_unicas = {oficina['Nome']: oficina for oficina in oficinas}.values()
-        num_oficinas = len(oficinas_unicas)
-        st.markdown("<br>",unsafe_allow_html=True)
-        
-        for i in range(0, num_oficinas, 3):
-            cols = st.columns(3)
-            for j, oficina in enumerate(list(oficinas_unicas)[i:i+3]):
-                with cols[j]:
-                    with st.container(border=True):
-                        if st.button(oficina["Nome"], use_container_width=True, key=f"btn_{oficina['Cod_Oficina']}"):
-                            st.session_state["oficina_selecionada"] = oficina
-                            st.rerun()
-                        st.markdown(f'<div style="text-align: center; font-size: 12px; color: gray;">{oficina["Descricao"]}</div>', unsafe_allow_html=True)
-        
-        st.markdown("---")
-
-
-
-
-
-
-
-
-
-
-
-# Oficial após a mudança do componente para a página de atendidos:
-
-import Banco_de_Dados.Oficinas as bd
-oficinas = bd.listar_oficinas() 
+oficinas_bd = bd.listar_oficinas() 
 
 if 'edit_mode' not in st.session_state:
     st.session_state.edit_mode = False
@@ -139,6 +21,73 @@ def sub_hora(ini:time, fim:time):
 
 from datetime import datetime, time
 import streamlit as st
+
+def exibir_imagem(foto):
+    """
+    Tenta exibir a imagem.
+    Se for um caminho local e não existir, exibe uma mensagem de erro.
+    Se for URL (começando com http) ou caminho válido, tenta exibir.
+    """
+    # Verifica se é um caminho local e se o arquivo existe
+    if not (foto.startswith("http") or os.path.exists(foto)):
+        st.error(f"Imagem não encontrada: {foto}")
+    else:
+        try:
+            st.image(foto, caption=foto, use_column_width=True)
+        except Exception as e:
+            st.error(f"Erro ao exibir a imagem: {foto}")
+
+def exibir_dados(dados: dict):
+    st.title("Detalhes da Oficina")
+
+    # Informações básicas
+    with st.expander("📌 Informações Básicas"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"**Código:** {dados.get('Código')}")
+            st.write(f"**Oficina:** {dados.get('Oficina')}")
+            st.write(f"**Projeto:** {dados.get('Projeto')}")
+            st.write(f"**Data de Início:** {dados.get('Data de Início')}")
+            st.write(f"**Data de Término:** {dados.get('Data de Término', 'Não definida')}")
+        with col2:
+            st.write(f"**Dia da Semana:** {dados.get('Dia da Semana')}")
+            st.write(f"**Hora de Início:** {dados.get('Hora de Início')}")
+            st.write(f"**Hora de Término:** {dados.get('Hora de Término')}")
+            st.write(f"**Vagas:** {dados.get('Vagas')}")
+            st.write(f"**Preço:** R$ {dados.get('Preço')}")
+
+    # Responsável
+    with st.expander("👤 Responsável"):
+        st.write(f"**Nome:** {dados.get('Responsável')}")
+        st.write(f"**Código do Responsável:** {dados.get('Código do Responsável')}")
+        st.write(f"**Descrição:** {dados.get('Descricao')}")
+
+    # Houve Oficina
+    if "Houve_Oficina" in dados:
+        with st.expander("📅 Datas das Oficinas"):
+            for data in dados["Houve_Oficina"]:
+                st.write(f"- {data}")
+
+    # Presenças
+    if "Presenças" in dados:
+        with st.expander("✅ Presenças"):
+            for nome, datas in dados["Presenças"].items():
+                st.write(f"**{nome}:**")
+                for data in datas:
+                    st.write(f"- {data}")
+
+    # Fotos
+    if "Fotos" in dados:
+        with st.expander("📸 Fotos da Oficina"):
+            fotos = dados["Fotos"]
+            num_colunas = 2
+            for i in range(0, len(fotos), num_colunas):
+                cols = st.columns(num_colunas)
+                for j, foto in enumerate(fotos[i:i+num_colunas]):
+                    with cols[j]:
+                        exibir_imagem(foto)
+
+
 
 def apresentar_oficinas2(oficinas):
     if 'oficina_selecionada' in st.session_state and st.session_state['oficina_selecionada']:
@@ -327,17 +276,19 @@ def apresentar_oficinas2(oficinas):
 
         st.markdown("---")
 
-        selected = grid_response.get("selected_rows", [])
-        if not selected.empty:
+        selected = grid_response.get("selected_rows")
+        if selected is None or selected.empty:
+            st.info("Nenhuma oficina selecionada.")
+        else:
             cod_oficina = selected.iloc[0]["Código"]
             oficina = bd.buscar_oficina(cod_oficina)
-            oficina
+            exibir_dados(oficina)
         
 
 
 
 
-apresentar_oficinas2(oficinas)
+apresentar_oficinas2(oficinas_bd)
 
 
 
