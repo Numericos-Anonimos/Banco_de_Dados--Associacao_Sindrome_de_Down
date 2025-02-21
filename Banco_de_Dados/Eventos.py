@@ -40,4 +40,4 @@ def imagens_evento (Cod_Evento):
     return fotos
 
 
-print(listar_eventos())
+#print(listar_eventos())
