@@ -63,13 +63,14 @@ def atendidos_oficina (Cod_Atendido):
             1: "SEG", 2: "TER", 3: "QUA", 4: "QUI", 5: "SEX", 6: "SÁB", 7: "DOM"
         }
 
-    
         oficina_dict = {
-            f"{dias_semana.get(row[0], 'DIA INVÁLIDO')} - {row[1]} ÀS {row[2]}": row[3]
+            f"{dias_semana.get(row[0], 'DIA INVÁLIDO')} - {row[1]} ÀS {row[2]}": 
+            [dias_semana.get(row[0], None)] + [i for i in row[1:]]
             for row in oficinas
         }
 
     return oficina_dict
+
 
 def atendido_foto(Cod_Atendido):
     with engine.connect() as con:

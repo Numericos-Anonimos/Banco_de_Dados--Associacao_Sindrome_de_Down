@@ -1,2 +1,6 @@
 /.Coisas
 .venv
+/Banco_de_Dados/__pycache__
+/Banco_de_Dados/Coisas
+/timetable_canvas/__pycache__
+/timetable_canvas/__pycache__

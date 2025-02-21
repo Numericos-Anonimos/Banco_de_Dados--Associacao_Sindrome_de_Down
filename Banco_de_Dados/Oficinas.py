@@ -19,11 +19,15 @@ def listar_oficinas():
             o.Cod_Oficina AS "Código", o.Nome AS "Oficina", p.Nome AS "Projeto",
             o.Data_Inicio AS "Data de Início", o.Data_Fim AS "Data de Término",
             o.Dia_Semana AS "Dia da Semana", o.Hora_Inicio AS "Hora de Início", 
-            o.Hora_Fim AS "Hora de Término", o.Vagas, f.Nome AS "Responsável", 
-            o.Valor_Hora AS "Preço", o.Descricao
+            o.Hora_Fim AS "Hora de Término", o.Vagas, count(DISTINCT ao.Cod_Atendido) AS "Participantes",
+            f.Nome AS "Responsável", o.Valor_Hora AS "Preço", o.Descricao
         FROM Oficinas o
         INNER JOIN Funcionarios f ON o.Cod_Funcionario = f.Cod_Funcionario
         INNER JOIN Projetos p ON o.Cod_Projeto = p.Cod_Projeto
+        LEFT JOIN Atendido_Oficinas ao ON 
+            ao.Cod_Oficina = o.Cod_Oficina
+            AND ao.Data_Fim IS NULL
+        GROUP BY o.Cod_Oficina
         """)
     
     df = pd.DataFrame([list(row) for row in rs], columns=rs.keys())
@@ -31,6 +35,7 @@ def listar_oficinas():
     df['Dia da Semana'] = df['Dia da Semana'].apply(convert_dias).astype('category')
     return df
 
+print(listar_oficinas()['Participantes'])
     
 def buscar_oficina(cod_oficina):
     # Pegando dados gerais da oficina
@@ -51,9 +56,9 @@ def buscar_oficina(cod_oficina):
     if row is None:
         raise ValueError('Oficina não encontrada')
     oficina = {key: val for key, val in zip(rs.keys(), row)}
-    oficina['Hora de Início'] = time(*map(int, oficina['Hora de Início'].split(':')))
-    oficina['Hora de Término'] = time(*map(int, oficina['Hora de Término'].split(':')))
-    
+        
+    oficina['Hora de Início'] = time()
+    oficina['Hora de Término'] = time(*map(int, oficina['Hora de Término'].split(':')))    
     rs = consultar(f"""
         SELECT Data, Entrada, Saida
         FROM Funcionario_Presencas
@@ -61,7 +66,7 @@ def buscar_oficina(cod_oficina):
             Cod_Funcionario = {oficina['Código do Responsável']} 
             AND strftime('%w', Data) = '{oficina['Dia da Semana']}' 
             AND Entrada <= '{oficina['Hora de Início']}' 
-            AND Saida >= '{oficina['Hora de Término']}'
+            AND Saida >= TIME('{oficina['Hora de Término']}')
         ORDER BY Data;
         """)
     oficina['Houve_Oficina'] = [date(*map(int, data.split('-'))) for data, _, _ in rs]

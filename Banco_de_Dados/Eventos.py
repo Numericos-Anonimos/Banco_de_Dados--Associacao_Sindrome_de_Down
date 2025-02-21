@@ -5,12 +5,26 @@ engine = sqlalchemy.create_engine('sqlite:///ASIN.db', echo=False)
 
 def listar_eventos():
     with engine.connect() as con:
-        result = con.execute(sqlalchemy.text('SELECT * From Eventos'))
+        result = con.execute(sqlalchemy.text('''
+            SELECT
+                e.Cod_Evento AS "Código",
+                e.Nome AS "Evento",
+                e.Data AS "Data",
+                e.Observacoes AS "Observações",
+                COUNT(DISTINCT a.Cod_Atendido) AS "Externos",
+                COUNT(DISTINCT f.Cod_Funcionario) AS "Funcionários"
+            FROM Eventos e
+            LEFT JOIN Atendido_Eventos a ON a.Cod_Evento = e.Cod_Evento
+            LEFT JOIN Funcionario_Eventos f ON f.Cod_Evento = e.Cod_Evento
+            GROUP BY e.Cod_Evento;
+        '''))
         columns = result.keys()
 
         eventos = [dict(zip(columns, row)) for row in result]
     
     return eventos
+
+print(listar_eventos())
 
 def imagens_evento (Cod_Evento):
     with engine.connect() as con:
@@ -26,6 +40,3 @@ def imagens_evento (Cod_Evento):
         fotos =  [row[0] for row in fotos]
 
     return fotos
-
-#print (listar_eventos())
-#print (imagens_evento(2))
