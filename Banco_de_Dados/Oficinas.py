@@ -9,10 +9,12 @@ dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 convert_dias = lambda x: dias_semana[x-1]
 
 from datetime import datetime, date, time
+def consultar(sql):
+    with engine.connect() as con:
+        return con.execute(sqlalchemy.text(sql))
 
 def listar_oficinas():
-    with engine.connect() as con:
-        rs = con.execute(sqlalchemy.text("""
+    rs = consultar("""
         SELECT 
             o.Cod_Oficina AS "Código", o.Nome AS "Oficina", p.Nome AS "Projeto",
             o.Data_Inicio AS "Data de Início", o.Data_Fim AS "Data de Término",
@@ -22,17 +24,17 @@ def listar_oficinas():
         FROM Oficinas o
         INNER JOIN Funcionarios f ON o.Cod_Funcionario = f.Cod_Funcionario
         INNER JOIN Projetos p ON o.Cod_Projeto = p.Cod_Projeto
-        """))
+        """)
     
     df = pd.DataFrame([list(row) for row in rs], columns=rs.keys())
     df['Projeto'] = df['Projeto'].astype('category')
     df['Dia da Semana'] = df['Dia da Semana'].apply(convert_dias).astype('category')
     return df
+
     
 def buscar_oficina(cod_oficina):
     # Pegando dados gerais da oficina
-    with engine.connect() as con:
-        rs = con.execute(sqlalchemy.text(f"""
+    rs = consultar(f"""
         SELECT 
             o.Cod_Oficina AS "Código", o.Nome AS "Oficina", p.Nome AS "Projeto",
             o.Data_Inicio AS "Data de Início", o.Data_Fim AS "Data de Término",
@@ -44,15 +46,15 @@ def buscar_oficina(cod_oficina):
         INNER JOIN Funcionarios f ON o.Cod_Funcionario = f.Cod_Funcionario
         INNER JOIN Projetos p ON o.Cod_Projeto = p.Cod_Projeto
         WHERE o.Cod_Oficina = {cod_oficina}
-        """))
+        """)
     row = rs.fetchone()
     if row is None:
         raise ValueError('Oficina não encontrada')
     oficina = {key: val for key, val in zip(rs.keys(), row)}
+    oficina['Hora de Início'] = time(*map(int, oficina['Hora de Início'].split(':')))
+    oficina['Hora de Término'] = time(*map(int, oficina['Hora de Término'].split(':')))
     
-    # Pegando dias que a oficina ocorreu (dias que o funcionário responsável estava presente no horário da oficina)
-    with engine.connect() as con:
-        rs = con.execute(sqlalchemy.text(f"""
+    rs = consultar(f"""
         SELECT Data, Entrada, Saida
         FROM Funcionario_Presencas
         WHERE 
@@ -61,12 +63,41 @@ def buscar_oficina(cod_oficina):
             AND Entrada <= '{oficina['Hora de Início']}' 
             AND Saida >= '{oficina['Hora de Término']}'
         ORDER BY Data;
-        """))
+        """)
+    oficina['Houve_Oficina'] = [date(*map(int, data.split('-'))) for data, _, _ in rs]
 
-    return oficina, list(rs)
+    # Participantes da oficina e dias que participaram
+    rs = consultar(f"""
+        SELECT a.Nome, data
+        FROM Atendidos a
+        INNER JOIN Atendido_Oficinas ao ON 
+            a.Cod_Atendido = ao.Cod_Atendido
+            and ao.Cod_Oficina = {cod_oficina}       
+        INNER JOIN Atendido_Presencas ap ON 
+            a.Cod_Atendido = ap.Cod_Atendido
+            and strftime('%w', ap.Data) = '{oficina['Dia da Semana']}'
+        """)
+    presencas = {}
+    for nome, data in rs:
+        if nome not in presencas:
+            presencas[nome] = []
+        presencas[nome].append(date(*map(int, data.split('-'))))
+    oficina['Presenças'] = presencas
+
+    # Fotos
+    rs = consultar(f"""
+        SELECT f.Caminho
+        FROM Fotos f
+        INNER JOIN Oficina_Fotos of ON
+            f.Cod_Foto = of.Cod_Foto
+            AND of.Cod_Oficina = {cod_oficina}
+        """)
+    oficina['Fotos'] = [caminho for caminho, in rs]
+
     
+    return oficina
 
-# print(buscar_oficina(1))
+print(buscar_oficina(53))
 
 
 
