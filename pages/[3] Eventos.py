@@ -48,7 +48,7 @@ def apresentando_eventos():
     # Seção de Filtros
     col_input, col_button = st.columns([9, 1])
     with col_input:
-        nome_evento = st.text_input("Digite o nome do evento:", st.session_state.get("nome_evento", ""))
+        nome_evento = st.text_input("Digite o nome do evento:", key=f"search_input_{st.session_state.grid_key}",value=st.session_state.nome_evento)
 
     with col_button:
         st.markdown('<div class="spaced-button">', unsafe_allow_html=True)
