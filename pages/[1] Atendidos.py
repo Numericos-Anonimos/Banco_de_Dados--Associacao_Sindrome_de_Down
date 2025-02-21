@@ -6,6 +6,7 @@ import os
 import requests
 from st_aggrid import AgGrid, GridOptionsBuilder
 from timetable_canvas import timetable_canvas_generator
+from Banco_de_Dados.Atendidos import *
 
 # Configuração da página deve ser a primeira linha no script
 #st.set_page_config(page_title="Detalhes do Atendido", layout="wide")
@@ -55,153 +56,7 @@ def convert_to_timetable(dados, nome_pessoa):
     return timetable
 
 # Dados de exemplo
-dados = [{
-    "Cod": 1,
-    'Nome': 'João Victor Assaoka Ribeiro',
-    'Status': True,
-    'Data de Nascimento': datetime(2005, 5, 4),
-    'RG': '98680418X',
-    'CPF': 31997000405,
-    'Convênio': 'Unimed',
-    'Pai': 'José',
-    'Mãe': 'Maria',
-    'Responsável': None,
-    'CEP': 12221580,
-    'Número': 123,
-    'Observações': None,
-    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
-    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
-    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
-                 'QUA - 09:00 ÁS 10:00': 'Música'},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
-              'Imagens/Outras/roxo.jpg', 
-              'Imagens/Outras/Sem título.jpg'],
-    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
-                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
-},
-    {
-    "Cod": 2,
-    'Nome': 'João Ferreira da Silva Pereira',
-    'Status': True,
-    'Data de Nascimento': datetime(2005, 5, 4),
-    'RG': '98680418X',
-    'CPF': 31997000405,
-    'Convênio': 'Unimed',
-    'Pai': 'José',
-    'Mãe': 'Maria',
-    'Responsável': None,
-    'CEP': 12221580,
-    'Número': 123,
-    'Observações': None,
-    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
-    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
-    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
-                 'QUA - 09:00 ÁS 10:00': 'Música'},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
-              'Imagens/Outras/roxo.jpg', 
-              'Imagens/Outras/Sem título.jpg'],
-    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
-                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
-},
-{
-    "Cod": 3,
-    'Nome': 'Thomas Pires Correia',
-    'Status': True,
-    'Data de Nascimento': datetime(2005, 5, 4),
-    'RG': '98680418X',
-    'CPF': 31997000405,
-    'Convênio': 'Unimed',
-    'Pai': 'José',
-    'Mãe': 'Maria',
-    'Responsável': None,
-    'CEP': 12221580,
-    'Número': 123,
-    'Observações': None,
-    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
-    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
-    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
-                 'QUA - 09:00 ÁS 10:00': 'Música'},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
-              'Imagens/Outras/roxo.jpg', 
-              'Imagens/Outras/Sem título.jpg'],
-    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
-                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
-},
-{
-    "Cod": 4,
-    'Nome': 'Matheus Kaua',
-    'Status': False,
-    'Data de Nascimento': datetime(2005, 5, 4),
-    'RG': '98680418X',
-    'CPF': 31997000405,
-    'Convênio': 'Unimed',
-    'Pai': 'José',
-    'Mãe': 'Maria',
-    'Responsável': None,
-    'CEP': 12221580,
-    'Número': 123,
-    'Observações': None,
-    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
-    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
-    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
-                 'QUA - 09:00 ÁS 10:00': 'Música'},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
-              'Imagens/Outras/roxo.jpg', 
-              'Imagens/Outras/Sem título.jpg'],
-    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
-                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
-},
-{
-    "Cod": 5,
-    'Nome': 'Reginaldo da Silva',
-    'Status': True,
-    'Data de Nascimento': datetime(2005, 5, 4),
-    'RG': '98680418X',
-    'CPF': 31997000405,
-    'Convênio': 'Unimed',
-    'Pai': 'José',
-    'Mãe': 'Maria',
-    'Responsável': None,
-    'CEP': 12221580,
-    'Número': 123,
-    'Observações': None,
-    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
-    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
-    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
-                 'QUA - 09:00 ÁS 10:00': 'Música'},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
-              'Imagens/Outras/roxo.jpg', 
-              'Imagens/Outras/Sem título.jpg'],
-    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
-                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
-},
-{
-    "Cod": 6,
-    'Nome': 'Carlos Rodrigues da Silva Carvalho',
-    'Status': False,
-    'Data de Nascimento': datetime(2005, 5, 4),
-    'RG': '98680418X',
-    'CPF': 31997000405,
-    'Convênio': 'Unimed',
-    'Pai': 'José',
-    'Mãe': 'Maria',
-    'Responsável': None,
-    'CEP': 12221580,
-    'Número': 123,
-    'Observações': None,
-    'Presenças': [date(2021, 5, 4), date(2021, 5, 11), date(2021, 5, 18), date(2021, 5, 25)],
-    'Contatos': [(31999999999, 'WhatsApp da mãe'), (12222222222, 'Telefone fixo do trabalho do pai')],
-    'Oficinas': {'SEG - 09:00 ÁS 10:00': 'Informática', 
-                 'QUA - 09:00 ÁS 10:00': 'Música'},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png',
-              'Imagens/Outras/roxo.jpg', 
-              'Imagens/Outras/Sem título.jpg'],
-    'Eventos': [('Feira de Ciências', date(2021, 5, 4), 'Descrição da Feira de Ciências'),
-                ('Festa Junina', date(2021, 6, 4), 'Descrição da Festa Junina')]
-}
-
-
-]
+dados = listar_atendidos()
 
 
 def format_status(status):
@@ -221,7 +76,13 @@ def formatar_cep(cep):
 
 # Função para formatar telefone
 def formatar_telefone(telefone):
-    telefone = f"{telefone:011d}"
+    # Remove qualquer caractere não numérico
+    telefone = "".join(filter(str.isdigit, telefone))
+
+    # Garante que tenha 11 dígitos antes de formatar
+    if len(telefone) != 11:
+        return telefone  # Retorna sem formatar caso o número seja inválido
+
     return f"({telefone[:2]}) {telefone[2:7]}-{telefone[7:]}"
 
 
@@ -243,63 +104,123 @@ def imprime_colaborador(atendido_info):
         status_emoji = "✅" if atendido_info['Status'] else "❌"
         col2.header(f"Status: {status_emoji}")
 
-        # Dados pessoais
+        def calcular_idade(data_nasc):
+            """ Calcula a idade com base na data de nascimento. """
+            data_nascimento = datetime.strptime(data_nasc, "%Y-%m-%d %H:%M:%S")
+            hoje = datetime.today()
+            return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+
+        def formatar_cpf(cpf):
+            """ Formata CPF no padrão XXX.XXX.XXX-XX. """
+            return f"{cpf[:3]}.{cpf[4:7]}.{cpf[8:11]}-{cpf[12:]}"
+
+        # Formatando os dados recebidos
         st.subheader("**Dados Pessoais**")
         col1, col2, col3, col4 = st.columns(4)
-        col1.write(f"**Data de Nascimento:** {format_date(atendido_info['Data de Nascimento'], 'dd/MM/yyyy', locale='pt_BR')} ({calcular_idade(atendido_info['Data de Nascimento'])} anos)")
+        col1.write(f"**Data de Nascimento:** {format_date(datetime.strptime(atendido_info['Data_Nascimento'], '%Y-%m-%d %H:%M:%S'), 'dd/MM/yyyy', locale='pt_BR')} ({calcular_idade(atendido_info['Data_Nascimento'])} anos)")
         col2.write(f"**RG:** {atendido_info['RG']}")
         col3.write(f"**CPF:** {formatar_cpf(atendido_info['CPF'])}")
-        col4.write(f"**Convênio:** {atendido_info['Convênio']}")
+        col4.write(f"**Convênio:** {atendido_info['Convenio']}")
 
         # Endereço
+        def formatar_cep(cep):
+            """ Formata o CEP no padrão XXXXX-XXX """
+            return f"{cep[:5]}-{cep[5:]}"
+
         endereco = endereco_por_cep(atendido_info['CEP'])
+
+        st.subheader("**Endereço**")
         col1, col2, col3 = st.columns(3)
-        col1.write(f"**Logradouro:** {endereco['logradouro']}")
+
+        col1.write(f"**Logradouro:** {endereco.get('logradouro', 'Não informado')}")
         col2.write(f"**CEP:** {formatar_cep(atendido_info['CEP'])}")
-        col3.write(f"**Número:** {atendido_info['Número']}")
-        col1.write(f"**Bairro:** {endereco['bairro']}")
-        col2.write(f"**Cidade:** {endereco['localidade']}")
-        col3.write(f"**Estado:** {endereco['uf']}")
+        col3.write(f"**Número:** {atendido_info.get('Numero', 'Não informado')}")
+
+        col1.write(f"**Bairro:** {endereco.get('bairro', 'Não informado')}")
+        col2.write(f"**Cidade:** {endereco.get('localidade', 'Não informado')}")
+        col3.write(f"**Estado:** {endereco.get('uf', 'Não informado')}")
 
         st.markdown("---")
+
+        atendido_cont = atendido_contatos(atendido_info["Cod_Atendido"])
+
         st.subheader("**Contatos**")
-        cols = st.columns(3)
-        for idx, (telefone, descricao) in enumerate(atendido_info['Contatos']):
-            formatted_telefone = formatar_telefone(telefone)
-            with cols[idx % 3].container(border=True):
-                st.markdown(f"**{descricao}:**")
-                st.write(formatted_telefone)
+
+        # Verifica se há contatos antes de iterar
+        if atendido_cont and isinstance(atendido_cont, list):
+            cols = st.columns(3)
+            
+            for idx, (telefone, descricao) in enumerate(atendido_cont):
+                formatted_telefone = formatar_telefone(telefone)  # Formata o telefone
+                
+                with cols[idx % 3].container(border=True):
+                    st.markdown(f"**{descricao}:**")
+                    st.write(formatted_telefone)
+        else:
+            st.write("Nenhum contato cadastrado.")
 
         st.markdown("---")
+
+
+        atendidos_ofc = atendidos_oficina(atendido_info["Cod_Atendido"])
 
         # Oficinas
         st.subheader("**Oficinas**")
-        for horario, oficina in atendido_info['Oficinas'].items():
+        for horario, oficina in atendidos_ofc.items():
             st.write(f"- **{horario}**: {oficina}")
+
             
         st.markdown("---")
+
+        atendido_pres = atendido_presencas(atendido_info["Cod_Atendido"]) or []
+
+        # Convertendo para datetime.date se houver dados
+        if atendido_pres:
+            atendido_pres = [datetime.strptime(data, "%Y-%m-%d").date() for data in atendido_pres]
+
         # Presenças
         st.subheader("**Presenças**")
-        min_date, max_date = min(atendido_info['Presenças']), max(atendido_info['Presenças'])
 
-        cols = st.columns(2)
-        intervalo_datas = [cols[0].date_input("Data Inicial", min_date, min_value=min_date, max_value=max_date, format="DD/MM/YYYY")]
-        intervalo_datas.append(cols[1].date_input("Data Final", max_date, min_value=intervalo_datas[0], max_value=max_date, format="DD/MM/YYYY"))
+        if atendido_pres:  # Verifica se há presenças registradas
+            min_date, max_date = min(atendido_pres), max(atendido_pres)
 
-        st.write(f"Presenças no intervalo selecionado: {len([i for i in atendido_info['Presenças'] if intervalo_datas[0] <= i <= intervalo_datas[1]])}")
+            cols = st.columns(2)
+            intervalo_datas = [
+                cols[0].date_input("Data Inicial", min_date, min_value=min_date, max_value=max_date, format="DD/MM/YYYY")
+            ]
+            intervalo_datas.append(
+                cols[1].date_input("Data Final", max_date, min_value=intervalo_datas[0], max_value=max_date, format="DD/MM/YYYY")
+            )
 
-        with st.expander("Datas de presença"):
-            for i in atendido_info['Presenças']:
-                if intervalo_datas[0] <= i <= intervalo_datas[1]:
-                    st.write(format_date(i, 'dd/MM/yyyy', locale='pt_BR'))
+            # Filtrando presenças dentro do intervalo selecionado
+            presencas_filtradas = [i for i in atendido_pres if intervalo_datas[0] <= i <= intervalo_datas[1]]
 
+            st.write(f"Presenças no intervalo selecionado: {len(presencas_filtradas)}")
+
+            with st.expander("Datas de presença"):
+                for data in presencas_filtradas:
+                    st.write(format_date(data, 'dd/MM/yyyy', locale='pt_BR'))  # Agora data é um objeto date
+
+        else:
+            st.write("Nenhuma presença registrada.")
         st.markdown("---")
+        
+
+        atendido_event = atendido_eventos(atendido_info["Cod_Atendido"]) or []
+
+        # Convertendo datas para objetos datetime.date e garantindo que descrição não seja None
+        atendido_event = [
+            (nome, datetime.strptime(data, "%Y-%m-%d %H:%M:%S").date(), descricao if descricao else "Sem descrição")
+            for nome, data, descricao in atendido_event
+        ]
 
         # Eventos
         st.subheader("**Eventos**")
         col1, col2 = st.columns(2)
-        for idx, (nome, data, descricao) in enumerate(atendido_info['Eventos']):
-            label = f"{nome} ({format_date(data, 'dd/MM/yyyy', locale='pt_BR')})"
+
+        for idx, (nome, data, descricao) in enumerate(atendido_event):
+            label = f"📊 {nome} ({format_date(data, 'dd/MM/yyyy', locale='pt_BR')})"
+            
             if idx % 2 == 0:
                 with col1.expander(label):
                     st.write(descricao)
@@ -309,17 +230,24 @@ def imprime_colaborador(atendido_info):
                     
         st.markdown("---")
 
+        import os
+
+        # Garantindo que atendido_fot seja uma lista válida antes de processá-la
+        atendido_fot = atendido_foto(atendido_info["Cod_Atendido"]) or []
+
         st.subheader("**Fotos**")
+
         if st.checkbox("Mostrar Fotos"):
             cols = st.columns(3)
-            for idx, foto in enumerate(atendido_info['Fotos']):
+
+            for idx, foto in enumerate(atendido_fot):
                 try:
-                    # Usando caminho absoluto para melhor controle
+                    # Construindo caminho absoluto da imagem
                     caminho_imagem = os.path.abspath(os.path.join("Imagens/Outras", os.path.basename(foto)))
                     
                     with cols[idx % 3]:
                         if os.path.exists(caminho_imagem):
-                            st.image(caminho_imagem, use_column_width=True)
+                            st.image(caminho_imagem, use_container_width=True)  # Atualizado para use_container_width
                         else:
                             st.warning(f"Arquivo não encontrado: {os.path.basename(foto)}")
                 except Exception as e:
@@ -418,8 +346,8 @@ def Atendidos():
 
     # Criando DataFrame e filtrando apenas os atributos necessários
     df = pd.DataFrame(dados_filtrados)
-    df = df[["Cod", "Nome", "CPF", "Data de Nascimento", "Status", "Convênio"]]
-    df["Data de Nascimento"] = pd.to_datetime(df["Data de Nascimento"]).dt.strftime('%d/%m/%Y')
+    df = df[["Cod_Atendido", "Nome", "CPF", "Data_Nascimento", "Status", "Convenio"]]
+    df["Data_Nascimento"] = pd.to_datetime(df["Data_Nascimento"]).dt.strftime('%d/%m/%Y')
 
     # Configurando o AgGrid para seleção única e para as colunas se expandirem
     gb = GridOptionsBuilder.from_dataframe(df)
@@ -445,11 +373,11 @@ def Atendidos():
     selected_rows = grid_response.get('selected_rows', [])
     if isinstance(selected_rows, pd.DataFrame) and not selected_rows.empty:
         selected_row = selected_rows.iloc[0].to_dict()
-        st.session_state.selected_user = selected_row['Cod']
+        st.session_state.selected_user = selected_row['Cod_Atendido']
 
     # Exibe as informações do usuário selecionado, se houver
     if st.session_state.selected_user is not None:
-        selected_user_data = next((item for item in dados if item['Cod'] == st.session_state.selected_user), None)
+        selected_user_data = next((item for item in dados if item['Cod_Atendido'] == st.session_state.selected_user), None)
         if selected_user_data:
             imprime_colaborador(selected_user_data)
 
