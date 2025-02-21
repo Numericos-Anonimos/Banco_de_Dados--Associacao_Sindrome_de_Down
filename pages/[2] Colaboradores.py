@@ -9,7 +9,6 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 from datetime import datetime
 from babel.dates import format_date 
 import requests
-
 from timetable_canvas import timetable_canvas_generator
 
 st.session_state['current_page'] = "Home"
@@ -328,7 +327,7 @@ def colaborador():
         rowHeight=60,
         key=st.session_state.grid_key
     )
-    
+
     st.markdown("---")
 
     # Recupera as linhas selecionadas

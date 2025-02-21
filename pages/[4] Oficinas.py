@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime, time, date
 from st_aggrid import AgGrid, GridOptionsBuilder
 import os
-
+import uuid
 import Banco_de_Dados.Oficinas as bd
 
 
@@ -123,20 +123,24 @@ def apresentar_oficinas2(oficinas):
         st.session_state.filtro_oficina = ""
 
     # Layout do input e botão limpar
-    col1, col2 = st.columns([9, 1])
-    with col1:
-        filtro = st.text_input(
-            "Filtrar oficinas por nome:",
-            value=st.session_state.filtro_oficina,
-            key="filtro_input"
+    col_input, col_button = st.columns([9, 1])
+    with col_input:
+        nome_funcionario = st.text_input(
+            "Digite o nome do colaborador:",
+            key=f"search_input_{st.session_state.grid_key}",
+            value=st.session_state.nome_funcionario
         )
-    with col2:
-        if st.button("Limpar"):
-            st.session_state.filtro_oficina = ""
-            st.rerun()
+    with col_button:
+        st.markdown('<div class="spaced-button">', unsafe_allow_html=True)
+        if st.button("Limpar", key="clear_button"):
+            st.session_state.nome_funcionario = ""             # Limpa o filtro
+            st.session_state.grid_key = str(uuid.uuid4())     # Gera nova chave para reinicializar grid e input
+            st.session_state.selected_user = None             # Remove o usuário selecionado
+            st.rerun()                                        # Reexecuta o script
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Filtra oficinas se houver um termo digitado
-    oficinas_filtradas = oficinas[oficinas["Nome"].str.contains(filtro, case=False, na=False)] if filtro else oficinas
+    oficinas_filtradas = oficinas[oficinas["Oficina"].str.contains(filtro, case=False, na=False)] if filtro else oficinas
 
     # Criando grid interativa
     gb = GridOptionsBuilder.from_dataframe(oficinas_filtradas)
