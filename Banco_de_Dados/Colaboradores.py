@@ -5,7 +5,14 @@ engine = sqlalchemy.create_engine('sqlite:///ASIN.db', echo=False)
 
 def listar_funcionarios():
     with engine.connect() as con:
-        result = con.execute(sqlalchemy.text('SELECT * From Funcionarios'))
+        result = con.execute(sqlalchemy.text("""
+            SELECT 
+                f.Cod_Funcionario AS "Cod_Funcionario", f.Nome AS "Nome", f.Status AS "Status",
+                f.CPF AS "CPF", f.CEP AS "CEP", f.Numero AS "Numero", f.Complemento AS "Complemento",
+                f.Observacoes AS "Observacoes", f.Salario + 10 AS "Salario"
+            FROM Funcionarios f
+            LEFT JOIN Oficinas o ON o.Cod_Funcionario = f.Cod_Funcionario
+        """))
         columns = result.keys()
 
         funcionarios = [dict(zip(columns, row)) for row in result]
@@ -44,7 +51,8 @@ def funcionario_oficinas (Cod_Funcionario):
         }
 
         oficina_dict = {
-            f"{dias_semana.get(row[0], 'DIA INVÁLIDO')} - {row[1]} ÀS {row[2]}": row[3]
+            f"{dias_semana.get(row[0], 'DIA INVÁLIDO')} - {row[1]} ÀS {row[2]}": 
+            [dias_semana.get(row[0], None)] + [i for i in row[1:]]
             for row in oficinas
         }
 
@@ -67,5 +75,5 @@ def funcionario_ponto (Cod_Funcionario):
 
 #print (funcionario_ponto(1))
 #print (funcionario_oficinas(1))
-#print (listar_funcionarios())
+print (listar_funcionarios())
 #print (funcionario_contatos(1))
