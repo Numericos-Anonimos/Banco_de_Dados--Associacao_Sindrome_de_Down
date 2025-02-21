@@ -89,7 +89,6 @@ def apresentar_oficinas2(oficinas):
     st.title("Oficinas")
     st.markdown("<br>", unsafe_allow_html=True)
 
-
     st.markdown(
         """
         <style>
@@ -97,7 +96,7 @@ def apresentar_oficinas2(oficinas):
             --ag-secondary-background-color: #005f88;
         }
         .small-button button {
-            width: 100px;  /* Tamanho menor */
+            width: 100px;  
             font-size: 8px;
             padding: 0px;
             background-color: #ff4b4b;
@@ -117,30 +116,33 @@ def apresentar_oficinas2(oficinas):
         unsafe_allow_html=True
     )
 
-
-    # Estado da sessão para controle do input
-    if "filtro_oficina" not in st.session_state:
-        st.session_state.filtro_oficina = ""
+    # Inicializando estado da sessão
+    if "selected_user" not in st.session_state:
+        st.session_state.selected_user = None
+    if "nome_funcionario" not in st.session_state:
+        st.session_state.nome_funcionario = ""
+    if "grid_key" not in st.session_state:
+        st.session_state.grid_key = str(uuid.uuid4())
 
     # Layout do input e botão limpar
     col_input, col_button = st.columns([9, 1])
     with col_input:
         nome_funcionario = st.text_input(
-            "Digite o nome do colaborador:",
+            "Digite o nome do atendido:",
             key=f"search_input_{st.session_state.grid_key}",
             value=st.session_state.nome_funcionario
         )
     with col_button:
         st.markdown('<div class="spaced-button">', unsafe_allow_html=True)
         if st.button("Limpar", key="clear_button"):
-            st.session_state.nome_funcionario = ""             # Limpa o filtro
-            st.session_state.grid_key = str(uuid.uuid4())     # Gera nova chave para reinicializar grid e input
-            st.session_state.selected_user = None             # Remove o usuário selecionado
-            st.rerun()                                        # Reexecuta o script
+            st.session_state.nome_funcionario = ""  # Limpa o campo de entrada
+            st.session_state.grid_key = str(uuid.uuid4())  # Atualiza a chave para forçar a atualização
+            st.session_state.selected_user = None 
+            st.rerun()  # Recarrega a página para aplicar mudanças
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Filtra oficinas se houver um termo digitado
-    oficinas_filtradas = oficinas[oficinas["Oficina"].str.contains(filtro, case=False, na=False)] if filtro else oficinas
+    # Filtra oficinas com base no input
+    oficinas_filtradas = oficinas[oficinas["Oficina"].str.contains(nome_funcionario, case=False, na=False)] if nome_funcionario else oficinas
 
     # Criando grid interativa
     gb = GridOptionsBuilder.from_dataframe(oficinas_filtradas)
@@ -157,19 +159,26 @@ def apresentar_oficinas2(oficinas):
         update_mode='SELECTION_CHANGED',
         fit_columns_on_grid_load=True,
         rowHeight=30,
-        key='grid_oficinas'
+        key=st.session_state.grid_key  # Atualiza a chave para forçar re-renderização
     )
 
     st.markdown("---")
 
     selected = grid_response.get("selected_rows")
 
-    if not selected:
-        st.info("Nenhuma oficina selecionada.")
+    if isinstance(selected, pd.DataFrame):  
+        selected = selected.to_dict(orient="records")  # Converte DataFrame para lista de dicionários
+
+    if selected and len(selected) > 0:
+        cod_oficina = selected[0].get("Código")
+        if cod_oficina is not None:
+            oficina = bd.buscar_oficina(cod_oficina)
+            exibir_dados(oficina)
+        else:
+            st.warning("A oficina selecionada não contém um código válido.")
     else:
-        cod_oficina = selected[0]["Código"]
-        oficina = bd.buscar_oficina(cod_oficina)
-        exibir_dados(oficina)
+        st.info("Nenhuma oficina selecionada.")
+
 
 
 
