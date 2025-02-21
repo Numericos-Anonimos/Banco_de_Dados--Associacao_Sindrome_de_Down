@@ -68,4 +68,4 @@ def funcionario_ponto (Cod_Funcionario):
 #print (funcionario_ponto(1))
 #print (funcionario_oficinas(1))
 #print (listar_funcionarios())
-print (funcionario_contatos(1))
+#print (funcionario_contatos(1))

@@ -159,9 +159,19 @@ def imprime_colaborador(atendido_info):
 
 
         atendidos_ofc = atendidos_oficina(atendido_info["Cod_Atendido"])
+
+        # Oficinas
+        st.subheader("**Oficinas**")
+        dias_disponiveis = ["Todos"] + sorted(set(of[0] for of in atendidos_ofc.values()))
+        dia_escolhido = st.selectbox("Escolha o dia da semana:", dias_disponiveis)
+        for horario, of in atendidos_ofc.items():
+            if dia_escolhido == "Todos" or of[0] == dia_escolhido:
+                st.write(f"- **{horario}**: {of[3]}")
+        
+
+            
         # Garantindo que o timetable sempre será renderizado
         try:
-            st.subheader("**Oficinas**")
             timetable = convert_to_timetable(atendidos_ofc)
             updated_timetable = timetable_canvas_generator(
                 timetable,

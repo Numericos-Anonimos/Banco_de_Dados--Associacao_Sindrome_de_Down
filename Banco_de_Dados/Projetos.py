@@ -12,4 +12,4 @@ def listar_projetos():
     
     return projetos
 
-print (listar_projetos())
+#print (listar_projetos())

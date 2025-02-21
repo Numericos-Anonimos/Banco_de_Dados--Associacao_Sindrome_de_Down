@@ -26,12 +26,12 @@ def listar_projetos(dados):
             .card {
                 border: 1px solid #00aeef;
                 border-radius: 10px;
-                padding: 15px;
-                margin: 10px 0 10px 30px;
+                padding: 10px;
+                margin: 10px 10px 10px 10px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                 background: #005f88;
                 text-align: center;
-                width: 320px;
+                width: 310px;
             }
             .card h3, .card p {
                 color: #ffffff;

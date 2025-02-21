@@ -105,4 +105,4 @@ def atendido_eventos (Cod_Atendido):
     return eventos
 
 
-#print(atendidos_oficina(1))
+print(atendidos_oficina(1))

@@ -7,6 +7,9 @@ import pandas as pd
 import uuid
 from st_aggrid import AgGrid, GridOptionsBuilder
 from datetime import datetime
+from babel.dates import format_date 
+import requests
+
 from timetable_canvas import timetable_canvas_generator
 
 st.session_state['current_page'] = "Home"
@@ -68,7 +71,16 @@ def formatar_telefone(telefone):
     telefone = telefone.zfill(11)  # Garante que tenha 11 dígitos, preenchendo com zeros à esquerda se necessário
     return f"({telefone[:2]}) {telefone[2:7]}-{telefone[7:]}"
 
-
+def endereco_por_cep(cep):
+    url = f"https://viacep.com.br/ws/{cep}/json/"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        endereco = response.json()
+        return endereco
+    else:
+        return {'logradouro': 'Não encontrado', 'bairro': 'Não encontrado', 'localidade': 'Não encontrado', 'uf': 'Não encontrado'}
+    
 
 
 def imprimir_colaborador(funcionario_selecionado):
@@ -95,6 +107,32 @@ def imprimir_colaborador(funcionario_selecionado):
         else:
             st.write(f"Observações: não inserido")
 
+        # Endereço
+        def formatar_cep(cep):
+            """ Formata o CEP no padrão XXXXX-XXX """
+            return f"{cep[:5]}-{cep[5:]}"
+
+        endereco = endereco_por_cep(funcionario_selecionado['CEP'])
+        
+        
+        col1, col2, col3 = st.columns(3)
+
+        col1.write(f"**Logradouro:** {endereco.get('logradouro', 'Não informado')}")
+        col2.write(f"**CEP:** {formatar_cep(funcionario_selecionado['CEP'])}")
+        col3.write(f"**Número:** {funcionario_selecionado.get('Numero', 'Não informado')}")
+
+        col1.write(f"**Bairro:** {endereco.get('bairro', 'Não informado')}")
+        col2.write(f"**Cidade:** {endereco.get('localidade', 'Não informado')}")
+        col3.write(f"**Estado:** {endereco.get('uf', 'Não informado')}")
+
+
+
+
+
+
+
+
+
         st.markdown("---")
         # Contatos
         funcionario_selecionado_contatos = funcionario_contatos(funcionario_selecionado["Cod_Funcionario"])
@@ -119,8 +157,20 @@ def imprimir_colaborador(funcionario_selecionado):
 
         funcionario_selecionado_oficinas = funcionario_oficinas(funcionario_selecionado["Cod_Funcionario"])
 
+        st.subheader("**Oficinas**")
+
+        # Extrai os dias disponíveis dos horários
+        dias_disponiveis = ["Todos"] + sorted(set(horario.split(" - ")[0] for horario in funcionario_selecionado_oficinas.keys()))
+
+        # Caixa de seleção para escolher o dia
+        dia_escolhido = st.selectbox("Escolha o dia da semana:", dias_disponiveis)
+
+        # Exibe as oficinas filtradas
+        for horario, oficina in funcionario_selecionado_oficinas.items():
+            if dia_escolhido == "Todos" or horario.startswith(dia_escolhido):
+                st.write(f"- **{horario}**: {oficina}")
+        
         try:
-            st.subheader("**Oficinas**")
             timetable = convert_to_timetable(funcionario_selecionado_oficinas)
             updated_timetable = timetable_canvas_generator(
                 timetable,
@@ -136,45 +186,53 @@ def imprimir_colaborador(funcionario_selecionado):
             st.exception(e)  # Mostra detalhes do erro sem quebrar o app
 
         st.markdown("---")
-        
-
         funcionario_selecionado_pontos = funcionario_ponto(funcionario_selecionado["Cod_Funcionario"])
 
-        # Presenças
-        pontos_formatados = [
-            (datetime.strptime(data, "%Y-%m-%d"), entrada, saida)
-            for data, entrada, saida in funcionario_selecionado_pontos
-        ]
+        # Verifica se há registros antes de processar os dados
+        if funcionario_selecionado_pontos:
+            # Presenças
+            pontos_formatados = [
+                (datetime.strptime(data, "%Y-%m-%d"), entrada, saida)
+                for data, entrada, saida in funcionario_selecionado_pontos
+            ]
 
-        # Encontrar a menor e maior data
-        min_date = min(pontos_formatados, key=lambda x: x[0])[0]
-        max_date = max(pontos_formatados, key=lambda x: x[0])[0]
+            # Encontrar a menor e maior data
+            min_date = min(pontos_formatados, key=lambda x: x[0])[0]
+            max_date = max(pontos_formatados, key=lambda x: x[0])[0]
 
-        # Criar um dicionário simulando os pontos do funcionário
-        funcionario_selecionado = {"Ponto": [p[0] for p in pontos_formatados]}
+            # Filtro de datas pelo usuário
+            st.subheader("📊 **Filtro de Período**")
+            col1, col2 = st.columns(2)
+            with col1:
+                data_inicio = st.date_input("Selecione a data inicial", min_date)
+            with col2:
+                data_fim = st.date_input("Selecione a data final", max_date)
 
-        # Definir um intervalo de datas (exemplo: do primeiro ao último ponto registrado)
-        intervalo_datas = (min_date, max_date)
+            # Garantir que a data de fim seja posterior à de início
+            if data_inicio > data_fim:
+                st.warning("⚠️ A data inicial não pode ser maior que a data final.")
+            else:
+                # Converter as datas do usuário para datetime
+                data_inicio = datetime.combine(data_inicio, datetime.min.time())
+                data_fim = datetime.combine(data_fim, datetime.max.time())
 
-        # Contar pontos no intervalo selecionado
-        pontos_no_intervalo = [
-            i for i in funcionario_selecionado["Ponto"] if intervalo_datas[0] <= i <= intervalo_datas[1]
-        ]
+                # Filtrar os pontos dentro do intervalo selecionado
+                pontos_no_intervalo = [
+                    (data, entrada, saida) for data, entrada, saida in pontos_formatados
+                    if data_inicio <= data <= data_fim
+                ]
 
-        # Exibição no Streamlit
-        st.subheader("📊 **Pontos**")
-        st.write(f"**Período:** {min_date.strftime('%d/%m/%Y')} - {max_date.strftime('%d/%m/%Y')}")
-        st.write(f"Pontos no intervalo selecionado: {len(pontos_no_intervalo)}")
+                st.write(f"Pontos no intervalo selecionado: {len(pontos_no_intervalo)}")
 
-        # Exibir os pontos detalhadamente
-        st.write("### Registro de Pontos:")
-        for data, entrada, saida in pontos_formatados:
-            st.write(f"📅 **{data.strftime('%d/%m/%Y')}** → 🕘 {entrada} - 🕛 {saida}")
+                # Expansor para mostrar as datas no intervalo formatadas
+                with st.expander("📅 **Datas de Presença**"):
+                    for data, entrada, saida in pontos_no_intervalo:
+                        st.write(f"📅 **{format_date(data, 'dd/MM/yyyy', locale='pt_BR')}** → 🕘 {entrada} - 🕛 {saida}")
 
-        # Expansor para mostrar as datas no intervalo
-        with st.expander("📅 **Datas de Ponto**"):
-            for i in pontos_no_intervalo:
-                st.write(i.strftime('%d/%m/%Y'))  # Exibir data formatada
+
+        else:
+            st.subheader("📊 **Pontos**")
+            st.write("⚠️ Nenhum registro de ponto encontrado para este funcionário.")
 
 
 
@@ -281,6 +339,7 @@ def colaborador():
     if st.session_state.selected_user is not None:
         selected_user_data = next((item for item in dados_funcionarios if item['Cod_Funcionario'] == st.session_state.selected_user), None)
         if selected_user_data:
+            st.markdown("---")
             imprimir_colaborador(selected_user_data)
 
 colaborador()
