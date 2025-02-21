@@ -1,15 +1,11 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, time, date
+from st_aggrid import AgGrid, GridOptionsBuilder
 import os
 
 
 #st.set_page_config(page_title="Oficinas", layout="wide")
-
-
-
-
-
 
 def apresentar_oficinas1(oficinas):
     if "oficina_selecionada" in st.session_state and st.session_state["oficina_selecionada"]:
@@ -131,175 +127,14 @@ def apresentar_oficinas1(oficinas):
 
 # Oficial após a mudança do componente para a página de atendidos:
 
-
-oficinas = [{
-    'Cod_Oficina': 1,
-    'Nome': "Informática",
-    'Categoria': "Tecnologia",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "TER",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Informática",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png', 'Imagens/Outras/roxo.jpg', 'Imagens/Outras/Sem título.jpg']
-    },
-    {
-    'Cod_Oficina': 2,
-    'Nome': "Clinica",
-    'Categoria': "Esporte",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "QUA",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Clinica",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/roxo.jpg', 'Imagens/Outras/Sem título.jpg']
-    },
-    {
-    'Cod_Oficina': 3,
-    'Nome': "Esporte",
-    'Categoria': "Esporte",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "SEG",
-    'Horario_Inicio': time(11, 0),
-    'Horario_Fim': time(12, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Esporte",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png']
-    },
-    {
-    'Cod_Oficina': 4,
-    'Nome': "Arte",
-    'Categoria': "Esporte",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "SEG",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Esporte",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/Sem título.jpg']
-    },
-    {
-    'Cod_Oficina': 5,
-    'Nome': "Informática",
-    'Categoria': "Tecnologia",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "SEG",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Informática",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png', 'Imagens/Outras/roxo.jpg', 'Imagens/Outras/Sem título.jpg']
-    },
-    {
-    'Cod_Oficina': 6,
-    'Nome': "Hip Hop",
-    'Categoria': "Dança",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "SEG",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Dança",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png', 'Imagens/Outras/roxo.jpg', 'Imagens/Outras/Sem título.jpg']
-    },{
-    'Cod_Oficina':7,
-    'Nome': "Jazz",
-    'Categoria': "Dança",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "SEG",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Dança",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png', 'Imagens/Outras/roxo.jpg', 'Imagens/Outras/Sem título.jpg']
-    },{
-    'Cod_Oficina': 8,
-    'Nome': "Zumba",
-    'Categoria': "Dança",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "SEG",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Dança",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png', 'Imagens/Outras/roxo.jpg', 'Imagens/Outras/Sem título.jpg']
-    },{
-    'Cod_Oficina': 9,
-    'Nome': "Fisioterapia",
-    'Categoria': "Clinica",
-    'Projeto': "Projeto 1",
-    'Data_Cadastro': date(2005, 5, 4),
-    'Data_Fim': None,
-    'Dia_Semana': "SEG",
-    'Horario_Inicio': time(8, 0),
-    'Horario_Fim': time(10, 0),
-    'Max_Participantes': 10,
-    'Valor_Hora': 10.00,
-    'Descricao': "Oficina de Clinica",
-    'Oficineiro': "João Victor Assaoka Ribeiro",
-    'Houve_Oficina': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)],
-    'Participantes': {'Thomas Pires': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)], 'Lucas Molinari': [date(2024, 2, 3), date(2024, 2, 17), date(2024, 2, 24)], 'Miguel': [date(2024, 2, 3), date(2024, 2, 10), date(2024, 2, 17), date(2024, 2, 24)]},
-    'Fotos': ['Imagens/Outras/octocat-1692375072300.png', 'Imagens/Outras/roxo.jpg', 'Imagens/Outras/Sem título.jpg']
-    }
-]
-
+import Banco_de_Dados.Oficinas as bd
+oficinas = bd.listar_oficinas() 
 
 if 'edit_mode' not in st.session_state:
     st.session_state.edit_mode = False
 
 def sub_hora(ini:time, fim:time):
     return (fim.hour - ini.hour) * 60 + (fim.minute - ini.minute)
-
 
 
 from datetime import datetime, time
@@ -470,47 +305,34 @@ def apresentar_oficinas2(oficinas):
             st.session_state["oficina_nome_selecionado"] = None
             st.rerun()  # Reinicia a página para exibir a lista inicial de oficinas
     else:
-        st.title("Nossas Oficinas")
+        st.title("Oficinas")
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Filtrando categorias únicas
-        categorias_unicas = sorted(set(oficina['Categoria'] for oficina in oficinas))
+        gb = GridOptionsBuilder.from_dataframe(oficinas)
+        gb.configure_default_column(resizable=True, minColumnWidth=200, flex=1)
+        gb.configure_selection('single', use_checkbox=False)
+        gridOptions = gb.build()
+        gridOptions["domLayout"] = "autoHeight"
 
-        # Select box para escolher a categoria
-        categoria_selecionada = st.selectbox("Selecione uma categoria:", ["Todas"] + categorias_unicas)
-
-        # Filtrando as oficinas com base na categoria selecionada
-        if categoria_selecionada != "Todas":
-            oficinas_filtradas = [oficina for oficina in oficinas if oficina['Categoria'] == categoria_selecionada]
-        else:
-            oficinas_filtradas = oficinas
+        grid_response = AgGrid(
+            oficinas,
+            gridOptions=gridOptions,
+            use_container_width=True,
+            height=500,
+            update_mode='SELECTION_CHANGED',
+            fit_columns_on_grid_load=True,
+            rowHeight=30,
+            key='grid_oficinas'
+        )
 
         st.markdown("---")
 
-        # Obtendo oficinas únicas
-        oficinas_unicas = {oficina['Nome']: oficina for oficina in oficinas_filtradas}.values()
-        num_oficinas = len(oficinas_unicas)
-
-        # Inserindo espaçamento
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # Exibindo as oficinas
-        for i in range(0, num_oficinas, 3):
-            cols = st.columns(3)
-            for j, oficina in enumerate(list(oficinas_unicas)[i:i+3]):
-                with cols[j]:
-                    with st.container(border=True):
-                        if st.button(oficina["Nome"], use_container_width=True, key=f"btn_{oficina['Cod_Oficina']}"):
-                            st.session_state["oficina_nome_selecionado"] = oficina["Nome"]
-                            st.rerun()
-                        st.markdown(f'<div style="text-align: center; font-size: 12px; color: gray;">{oficina["Descricao"]}</div>', unsafe_allow_html=True)
-
-
-
-
-
-
-
+        selected = grid_response.get("selected_rows", [])
+        if not selected.empty:
+            cod_oficina = selected.iloc[0]["Código"]
+            oficina = bd.buscar_oficina(cod_oficina)
+            oficina
+        
 
 
 
