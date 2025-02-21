@@ -66,13 +66,13 @@ def apresentando_eventos():
         st.markdown('</div>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
-    data_inicio_default = min(evento["Data"] for evento in eventos)
-    data_fim_default = max(evento["Data"] for evento in eventos)
+    #data_inicio_default = min(evento["Data"] for evento in eventos)
+    #data_fim_default = max(evento["Data"] for evento in eventos)
     
     with col1:
-        data_inicio = st.date_input("Data Inicial", st.session_state.get("data_inicio", data_inicio_default))
+        data_inicio = st.date_input("Data Inicial", st.session_state.get("data_inicio", date(2024, 1, 1)))
     with col2:
-        data_fim = st.date_input("Data Final", st.session_state.get("data_fim", data_fim_default))
+        data_fim = st.date_input("Data Final", st.session_state.get("data_fim", date.today()))
     
     # Atualizando session state
     st.session_state.update({
